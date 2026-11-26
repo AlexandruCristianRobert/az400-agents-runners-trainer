@@ -1,0 +1,2155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents &amp; Runners Practice Lab</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --text:#1d2330; --muted:#5d6678; --line:#e1e5ec;
+  --accent:#0f6cbd; --accent-soft:#e6f0fa; --ok:#127a3c; --ok-soft:#e5f5eb; --bad:#b42318; --bad-soft:#fdecea;
+  --warn:#a35200; --warn-soft:#fdf1e3;
+  --code-bg:#0f1720; --code-text:#d6dde8;
+  --k:#7cc4ff; --s:#f2b880; --c:#7d8a9c; --d:#d7a6ff; --n:#9fe3a8; --t:#6fd6c9;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1116; --panel:#161b22; --text:#e3e8ef; --muted:#9aa4b2; --line:#2a313c;
+    --accent:#4ea1f3; --accent-soft:#16283c; --ok:#4cc27a; --ok-soft:#13281c; --bad:#ff7b72; --bad-soft:#2d1615;
+    --warn:#f0b450; --warn-soft:#2b2112;
+    --code-bg:#0a0d12;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1116; --panel:#161b22; --text:#e3e8ef; --muted:#9aa4b2; --line:#2a313c;
+  --accent:#4ea1f3; --accent-soft:#16283c; --ok:#4cc27a; --ok-soft:#13281c; --bad:#ff7b72; --bad-soft:#2d1615;
+  --warn:#f0b450; --warn-soft:#2b2112;
+  --code-bg:#0a0d12;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+code,pre,textarea{font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace}
+.app{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:100vh}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto}
+aside h1{font-size:18px;margin:0 8px 4px}
+aside .sub{color:var(--muted);font-size:13px;margin:0 8px 14px}
+.progress{height:6px;background:var(--line);border-radius:4px;margin:0 8px 6px;overflow:hidden}
+.progress>div{height:100%;background:var(--ok);width:0;transition:width .3s}
+.ptext{font-size:12px;color:var(--muted);margin:0 8px 14px}
+nav button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;color:var(--text);
+  padding:8px 10px;border-radius:8px;cursor:pointer;font-size:14px}
+nav button:hover{background:var(--accent-soft)}
+nav button.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav .num{flex:0 0 24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:12px;color:var(--muted)}
+nav button.done .num{background:var(--ok);border-color:var(--ok);color:#fff}
+nav .cnt{margin-left:auto;font-size:11px;color:var(--muted);font-weight:400}
+nav .group{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:14px 10px 4px}
+.sidefoot{margin:18px 8px 0;display:grid;gap:10px;justify-items:start}
+.sidefoot a{font-size:13px;color:var(--accent)}
+.theme{font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 10px;cursor:pointer}
+main{padding:32px 40px 80px;max-width:980px;width:100%}
+.tag{display:inline-block;font-size:12px;color:var(--accent);background:var(--accent-soft);padding:2px 10px;border-radius:20px;margin-bottom:8px}
+h2{font-size:28px;margin:0 0 8px}
+h3{font-size:19px;margin:28px 0 8px}
+p{margin:8px 0}
+.lead{color:var(--muted);font-size:17px}
+:not(pre)>code{background:var(--accent-soft);padding:1px 6px;border-radius:5px;font-size:.9em;overflow-wrap:anywhere}
+.codewrap{position:relative;margin:12px 0}
+pre{background:var(--code-bg);color:var(--code-text);padding:16px 18px;border-radius:10px;overflow:auto;font-size:14px;line-height:1.55;margin:0}
+.file{font-size:12px;color:var(--muted);margin:12px 0 -6px;font-family:Consolas,monospace}
+.copy{position:absolute;top:8px;right:8px;font-size:12px;background:#ffffff1a;color:#cfd8e3;border:0;border-radius:6px;padding:4px 9px;cursor:pointer}
+.copy:hover{background:#ffffff33}
+.tk{color:var(--k)} .ts{color:var(--s)} .tc{color:var(--c);font-style:italic} .td{color:var(--d)} .tn{color:var(--n)} .tt{color:var(--t)}
+.tdash{color:var(--c)}
+ul.tips,ol.tips{padding-left:20px} .tips li{margin:4px 0}
+table.ref{border-collapse:collapse;width:100%;font-size:14px;margin:10px 0}
+table.ref th,table.ref td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+table.ref th{background:var(--accent-soft);font-weight:600}
+.tablewrap{overflow-x:auto}
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0;font-size:15px}
+.note.exam{border-left-color:var(--warn);background:var(--warn-soft)}
+.exercise{margin-top:30px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+.exercise h3{margin-top:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.exercise h3 .kind{font-size:12px;font-weight:500;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:1px 10px}
+.exercise h3 .badge{font-size:12px;background:var(--ok);color:#fff;border-radius:20px;padding:2px 10px;display:none}
+.exercise.solved h3 .badge{display:inline-block}
+.exercise.solved{border-color:var(--ok)}
+textarea{width:100%;min-height:220px;background:var(--code-bg);color:var(--code-text);border:1px solid var(--line);border-radius:10px;
+  padding:14px;font-size:14px;line-height:1.55;resize:vertical;tab-size:2;outline:none;white-space:pre;overflow:auto}
+textarea.short{min-height:120px;white-space:pre-wrap}
+textarea:focus{border-color:var(--accent)}
+.edhelp{font-size:12px;color:var(--muted);margin:4px 0 0}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.small{padding:2px 9px;font-size:13px}
+.results{list-style:none;padding:0;margin:10px 0}
+.results li{padding:6px 12px;border-radius:7px;margin:4px 0;font-size:14px}
+.results li.pass{background:var(--ok-soft);color:var(--ok)}
+.results li.fail{background:var(--bad-soft);color:var(--bad)}
+.results li .sub{display:block;font-size:13px;margin:2px 0 0 18px;opacity:.9}
+.hint{display:none;background:var(--accent-soft);padding:10px 14px;border-radius:8px;font-size:15px;margin:8px 0}
+.why{display:none;border-left:3px solid var(--ok);background:var(--ok-soft);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0;font-size:15px}
+.solution{display:none;margin:10px 0}
+.solution .solhead{font-size:13px;color:var(--muted);font-weight:600;margin:0 0 6px}
+/* choice */
+.opts{display:grid;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--bg)}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:5px;flex:0 0 auto}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+/* order */
+.order{list-style:none;padding:0;margin:12px 0;display:grid;gap:6px}
+.order li{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--bg)}
+.order li .pos{flex:0 0 24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-size:12px;font-weight:600}
+.order li .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.order li .mv{display:flex;gap:4px}
+.order li.right{border-color:var(--ok);background:var(--ok-soft)}
+.order li.wrong{border-color:var(--bad);background:var(--bad-soft)}
+/* match */
+.match{width:100%;border-collapse:collapse;margin:12px 0;font-size:15px}
+.match td{border-bottom:1px solid var(--line);padding:8px 6px;vertical-align:middle}
+.match td:first-child{width:58%}
+.match select{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:14px}
+.match tr.right td{background:var(--ok-soft)}
+.match tr.wrong td{background:var(--bad-soft)}
+/* fill */
+.fill{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:12px 0;line-height:2.3}
+.fill{overflow-x:auto}
+.fill.mono{overflow-wrap:anywhere;font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;font-size:14px;white-space:pre-wrap;line-height:2.2}
+.fill input{font:inherit;font-size:14px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--text);min-width:90px}
+.fill input.right{border-color:var(--ok);background:var(--ok-soft)}
+.fill input.wrong{border-color:var(--bad);background:var(--bad-soft)}
+/* lines */
+.lines{background:var(--code-bg);border-radius:10px;padding:8px 0;margin:12px 0;overflow:auto}
+.lines .ln{display:flex;gap:12px;padding:2px 14px;cursor:pointer;color:var(--code-text);font-family:"Cascadia Code",Consolas,"SF Mono",Menlo,monospace;font-size:14px;white-space:pre;border-left:3px solid transparent}
+.lines .ln:hover{background:#ffffff12}
+.lines .ln .no{color:var(--c);user-select:none;min-width:20px;text-align:right}
+.lines .ln.sel{background:#f2b88026;border-left-color:var(--s)}
+.lines .ln.right{background:#4cc27a2e;border-left-color:var(--n)}
+.lines .ln.wrong{background:#ff7b7230;border-left-color:#ff7b72}
+.lines.prose .ln{font-family:inherit;white-space:normal}
+.navfoot{display:flex;justify-content:space-between;margin-top:30px}
+.menu{display:none}
+@media (max-width:820px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  aside{position:fixed;inset:0 30% 0 0;z-index:5;transform:translateX(-105%);transition:transform .2s;height:100vh}
+  aside.open{transform:none;box-shadow:0 0 40px #0006}
+  main{padding:16px 16px 60px}
+  .menu{display:inline-block;margin-bottom:12px}
+  h2{font-size:23px}
+  .match td{display:block;width:100% !important;border:0;padding:4px 6px}
+  .match tr{display:block;border-bottom:1px solid var(--line);padding:6px 0}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside id="side">
+    <h1>Agents &amp; Runners Lab</h1>
+    <p class="sub">AZ-400 · 3.3 Pipeline platform, agents and runners</p>
+    <div class="progress"><div id="bar"></div></div>
+    <p class="ptext" id="ptext"></p>
+    <nav id="nav"></nav>
+    <div class="sidefoot">
+      <button class="theme" id="themeBtn">Toggle theme</button>
+      <button class="theme" id="resetAllBtn">Reset progress</button>
+      <a href="../azure-pipelines-tutorial/index.html">Open the Azure Pipelines Practice Lab</a>
+      <a href="../I.1%20-%20flow-of-work-trainer/index.html">Open the Flow of Work Practice Lab</a>
+    </div>
+  </aside>
+  <main>
+    <button class="btn menu" id="menuBtn">☰ Modules</button>
+    <div id="content"></div>
+  </main>
+</div>
+
+<script>
+/* ===================================================================
+   MODULE DATA
+   Exercise types (all share: id, title, q, hint, why):
+     mc     options[], answer: index
+     multi  options[], answer: [indexes]           (select all that apply)
+     order  items[] in the CORRECT order (shown shuffled)
+     match  rows: [[left html, correct choice]], choices[]
+     fill   tpl with [[0]], [[1]]… blanks, blanks: [[accepted…]]  (first = shown in solution)
+     lines  code: [lines], answer: [line indexes]  (click the faulty lines)
+     text   lang: "yaml" | "sh", starter, checks: [{l, t: api => bool}], solution
+            yaml → api is the YAML query api (h, item, count, first, src)
+            sh   → api is { src, lines }; use cmd(api, re) / at(api, re) helpers
+   =================================================================== */
+
+/* ---------- command-line helpers for the "sh" exercises ---------- */
+// Logical command lines: continuation backslashes / backticks joined, comments dropped.
+function cmdLines(src){
+  return String(src || "").replace(/\r/g, "").replace(/[\\`][ \t]*\n/g, " ").split("\n")
+    .map(l => l.trim()).filter(l => l && !l.startsWith("#"));
+}
+function tokens(line){
+  const out = [], re = /"([^"]*)"|'([^']*)'|(\S+)/g; let m;
+  while ((m = re.exec(line))) out.push(m[1] !== undefined ? m[1] : m[2] !== undefined ? m[2] : m[3]);
+  return out;
+}
+// Finds the first command line containing a token matching `exe` (and, optionally, whose
+// tokens before it match `pre`). Returns {flags, args, idx} with lower-cased flag names
+// (leading dashes removed; "--x=y" and "--x y" both work; a flag without value is true).
+function cmd(api, exe, pre){
+  const ls = cmdLines(api.src);
+  for (let li = 0; li < ls.length; li++){
+    const t = tokens(ls[li]);
+    const i = t.findIndex(x => exe.test(x));
+    if (i < 0) continue;
+    if (pre && !pre.test(t.slice(0, i).join(" "))) continue;
+    const flags = {}, args = [];
+    for (let k = i + 1; k < t.length; k++){
+      const x = t[k];
+      if (/^--?[A-Za-z]/.test(x)){
+        let name = x, val = true;
+        const eq = x.indexOf("=");
+        if (eq > 0){ name = x.slice(0, eq); val = x.slice(eq + 1); }
+        else if (k + 1 < t.length && !/^--?[A-Za-z]/.test(t[k + 1])) val = t[++k];
+        flags[name.replace(/^-+/, "").toLowerCase()] = val;
+      } else args.push(x);
+    }
+    return {flags, args, idx: li};
+  }
+  return null;
+}
+const flag = (c, names, w) => {
+  if (!c) return false;
+  for (const n of [].concat(names)){
+    if (!(n in c.flags)) continue;
+    const v = c.flags[n];
+    if (w === undefined) return true;
+    if (w === true) return v === true;
+    if (typeof v !== "string") continue;
+    if (w instanceof RegExp ? w.test(v) : v.toLowerCase() === String(w).toLowerCase()) return true;
+  }
+  return false;
+};
+// Index of the first logical line matching re, or -1.
+const at = (api, re) => cmdLines(api.src).findIndex(l => re.test(l));
+const AP_CFG = /^(\.\/|\.\\)?config\.(sh|cmd)$/i;
+
+const MODULES = [
+/* ================================================================ 1 */
+{
+  group:"Choose the platform",
+  title:"GitHub Actions or Azure Pipelines?",
+  tag:"selection · classic vs YAML · using both",
+  intro:`The first AZ-400 objective in this area is to <b>select a deployment automation solution</b>. Both engines run YAML-defined jobs on agents or runners. What decides it is where the code lives, what the team already runs, and which features you need. They also combine well, so the right answer is often "both, wired together".`,
+  sections:[
+    {h:"Two engines side by side", after:`<div class="tablewrap"><table class="ref">
+<tr><th></th><th>GitHub Actions</th><th>Azure Pipelines</th></tr>
+<tr><td><b>Definition</b></td><td><code>.github/workflows/*.yml</code> in the repository</td><td><code>azure-pipelines.yml</code> (YAML) or the classic editor</td></tr>
+<tr><td><b>Source code</b></td><td>The GitHub repository the workflow lives in (it can check out others)</td><td>Azure Repos (Git and TFVC), GitHub, GitHub Enterprise Server, Bitbucket Cloud, other Git</td></tr>
+<tr><td><b>Triggers</b></td><td>Any GitHub event: push, pull_request, issues, release, schedule, workflow_dispatch…</td><td>CI, pull request, scheduled, pipeline-completion and resource triggers</td></tr>
+<tr><td><b>Compute</b></td><td>GitHub-hosted runners, larger runners, self-hosted runners, Actions Runner Controller</td><td>Microsoft-hosted agents, self-hosted agents, scale set agents, Managed DevOps Pools, GitHub-hosted agents (pay-as-you-go)</td></tr>
+<tr><td><b>Reuse</b></td><td>Marketplace actions, reusable workflows, composite actions</td><td>Tasks and Marketplace extensions, YAML templates and <code>extends</code>, task groups (classic)</td></tr>
+<tr><td><b>Deployment governance</b></td><td>Environments with protection rules (required reviewers, wait timer, branch rules)</td><td>Environments with approvals and checks; release gates in classic releases</td></tr>
+<tr><td><b>On-premises product</b></td><td>GitHub Enterprise Server</td><td>Azure DevOps Server</td></tr>
+<tr><td><b>Billing model</b></td><td>Included monthly usage, then per minute (private repositories)</td><td>Parallel jobs (plus per-minute GitHub-hosted agents)</td></tr>
+</table></div>`},
+    {h:"Classic vs. YAML pipelines", after:`<div class="tablewrap"><table class="ref">
+<tr><th>Classic (designer)</th><th>YAML</th></tr>
+<tr><td>Edited in the web UI, separate <b>build</b> and <b>release</b> pipelines</td><td>Pipeline as code: versioned with the app and reviewed in pull requests</td></tr>
+<tr><td>Deployment groups, release gates, task groups</td><td>Multi-stage pipelines, environments with approvals and checks, templates and <code>extends</code></td></tr>
+<tr><td>No container jobs</td><td>Container jobs, matrix and runtime parameters</td></tr>
+</table></div>
+<p>Organization and project settings can turn off creating new classic build and release pipelines, which pushes teams towards YAML.</p>`},
+    {h:"Using both together", lang:"text", code:`GitHub repo ──(Azure Pipelines GitHub App)──▶ Azure Pipelines YAML pipeline
+    PR results come back to GitHub as checks; deploy with AzP environments
+
+GitHub Actions workflow ──(Azure/pipelines@v1 action)──▶ queues an Azure Pipelines run
+
+Moving from Azure Pipelines (or Jenkins, GitLab…) to GitHub Actions:
+    gh actions-importer audit | forecast | dry-run | migrate`}
+  ],
+  tip:`Code on GitHub, no existing Azure DevOps investment → <b>GitHub Actions</b>. Azure DevOps Server on-premises, TFVC, classic releases with deployment groups, or deep Azure Boards and Test Plans usage → <b>Azure Pipelines</b>. If the scenario says "code is on GitHub but releases must stay in Azure Pipelines", the answer is the <b>Azure Pipelines GitHub App</b>, not a mirror.`,
+  exercises:[
+    {id:"pl1", type:"mc", title:"Pick the engine",
+     q:`A startup keeps all its code on GitHub. It wants automation that reacts to <b>issue and pull request events</b>, reuses community building blocks, and doesn't want to run a second DevOps service. What should it use?`,
+     options:[
+       "Azure Pipelines classic release pipelines",
+       "Azure Pipelines YAML pipelines connected through the GitHub App",
+       "GitHub Actions",
+       "Azure DevOps Server with self-hosted agents"
+     ], answer:2,
+     hint:`Which engine can trigger on any GitHub event and lives in the same service as the code?`,
+     why:`GitHub Actions runs in the same service as the code, triggers on any GitHub event (including <code>issues</code> and <code>pull_request</code>) and has the Marketplace of actions. Azure Pipelines can build GitHub repos, but it triggers on pushes and pull requests, not on issue events, and it's a second service to run.`},
+    {id:"pl2", type:"match", title:"Which engine fits the requirement?",
+     q:`Match each requirement to the engine that meets it.`,
+     choices:["GitHub Actions","Azure Pipelines"],
+     rows:[
+       ["Must run on-premises on Azure DevOps Server, with no cloud connectivity","Azure Pipelines"],
+       ["Run automation when an issue gets the label <code>triage</code>","GitHub Actions"],
+       ["Existing classic release pipelines deploy to deployment groups","Azure Pipelines"],
+       ["Share logic as reusable workflows and composite actions","GitHub Actions"],
+       ["The source code is in a TFVC repository","Azure Pipelines"],
+       ["Capacity is bought as organization-wide parallel jobs","Azure Pipelines"]
+     ],
+     hint:`Deployment groups, TFVC, parallel jobs and Azure DevOps Server are all Azure DevOps concepts.`,
+     why:`Azure DevOps Server, TFVC, deployment groups and parallel jobs belong to Azure Pipelines. Event-driven automation on issues, reusable workflows and composite actions are GitHub Actions features.`},
+    {id:"pl3", type:"multi", title:"Why move from classic to YAML?",
+     q:`Your team still uses classic build and release pipelines. Which are <b>real</b> advantages of moving to YAML pipelines? <i>Select all that apply.</i>`,
+     options:[
+       "The pipeline definition is versioned with the code and changes go through pull requests",
+       "You can reuse logic with templates and enforce a base pipeline with extends",
+       "Container jobs become available (classic pipelines don't support them)",
+       "Deployment groups are only available in YAML pipelines",
+       "YAML pipelines don't consume parallel jobs",
+       "Stages, environments, approvals and checks are defined next to the code"
+     ], answer:[0,1,2,5],
+     hint:`Two options describe things that are either classic-only or simply not true for any pipeline type.`,
+     why:`YAML gives you pipeline as code (history, review, branches), templates and <code>extends</code>, container jobs and multi-stage pipelines with environments. Deployment groups are a <b>classic release</b> feature (YAML uses environment VM resources instead), and every pipeline type consumes parallel jobs while it runs on an agent.`},
+    {id:"pl4", type:"mc", title:"Code moved to GitHub",
+     q:`The code moved from Azure Repos to GitHub. The multi-stage YAML pipeline with environments and approvals in Azure Pipelines must stay, and pull request results should show up in GitHub as <b>checks</b>. What do you do?`,
+     options:[
+       "Mirror the GitHub repository into Azure Repos every night and keep building from the mirror",
+       "Install the Azure Pipelines GitHub App for the repository and point the YAML pipeline at the GitHub repo",
+       "Rewrite everything in GitHub Actions, because Azure Pipelines can't build GitHub repositories",
+       "Connect with OAuth so the checks are posted under your personal GitHub account"
+     ], answer:1,
+     hint:`Which connection type works with the GitHub Checks API?`,
+     why:`Azure Pipelines builds GitHub repositories directly. The <b>GitHub App</b> is the recommended connection: it runs under the Azure Pipelines identity and posts results as GitHub <b>Checks</b>. OAuth and PATs use your personal identity and only post basic statuses. A mirror adds delay and breaks PR integration.`},
+    {id:"pl5", type:"order", title:"Migrate with GitHub Actions Importer",
+     q:`You're moving a set of Azure Pipelines to GitHub Actions with GitHub Actions Importer. Put the subcommands in the order you'd normally use them.`,
+     items:[
+       "gh actions-importer audit: inventory the pipelines and see how much converts automatically",
+       "gh actions-importer forecast: estimate GitHub Actions runner usage from past pipeline runs",
+       "gh actions-importer dry-run: convert one pipeline to a workflow file locally for review",
+       "gh actions-importer migrate: convert the pipeline and open a pull request with the workflow"
+     ],
+     hint:`Plan first (what is there, how much compute), then try one conversion locally, then do it for real.`,
+     why:`<code>audit</code> shows what you have and how well it converts, <code>forecast</code> estimates compute usage, <code>dry-run</code> writes the converted workflow locally so you can fix gaps, and <code>migrate</code> opens a pull request with the workflow in the target repository.`}
+  ]
+},
+/* ================================================================ 2 */
+{
+  group:"Hosted & self-hosted",
+  title:"Hosted agents & runners",
+  tag:"Microsoft-hosted · GitHub-hosted · images · limits · larger runners",
+  intro:`Hosted machines are the zero-maintenance option: Microsoft (for Azure Pipelines) or GitHub (for Actions) owns the VM, patches the image and throws the machine away after <b>every job</b>. You choose an image label; you can't choose the hardware of the standard machines or reach your private network from them.`,
+  sections:[
+    {h:"Microsoft-hosted agents (Azure Pipelines)", p:`They live in the predefined <b>Azure Pipelines</b> pool. In YAML you pick an image with <code>vmImage</code>; if a pipeline doesn't specify a pool at all, it runs on <code>ubuntu-latest</code>. Image labels as of late 2026:`,
+     after:`<div class="tablewrap"><table class="ref">
+<tr><th>OS</th><th>Current labels</th><th>Retired or on the way out</th></tr>
+<tr><td>Windows</td><td><code>windows-2025-vs2026</code> (VS 2026, <code>windows-latest</code> is moving to it), <code>windows-2025</code>, <code>windows-2022</code></td><td><code>windows-2019</code> retired 31 Dec 2025</td></tr>
+<tr><td>Linux</td><td><code>ubuntu-26.04</code>, <code>ubuntu-24.04</code> = <code>ubuntu-latest</code></td><td><code>ubuntu-22.04</code> deprecated (removal planned April 2027), <code>ubuntu-20.04</code> retired</td></tr>
+<tr><td>macOS</td><td><code>macOS-26</code> = <code>macOS-latest</code>, <code>macOS-15</code></td><td><code>macOS-14</code> being deprecated, <code>macOS-13</code> retired 4 Dec 2025</td></tr>
+</table></div>
+<ul class="tips">
+<li><b>Hardware</b>: Windows and Linux agents are 2-core VMs with 7 GB RAM and 14 GB SSD, with at least 10 GB free for your job. You <b>can't</b> make them bigger.</li>
+<li><b>Fresh VM per job</b>, discarded afterwards. Nothing carries over between jobs. Steps run as admin (Windows) or passwordless sudo (Linux).</li>
+<li><b>No</b> RDP/SSH, no VPN or ExpressRoute into your network, no rolling back to an older image version.</li>
+<li><b>Time limits</b>: 60 minutes per job on the free tier, 360 minutes per job with a paid parallel job.</li>
+</ul>`},
+    {h:"GitHub-hosted runners (GitHub Actions)", after:`<div class="tablewrap"><table class="ref">
+<tr><th>Label</th><th>What you get</th></tr>
+<tr><td><code>ubuntu-latest</code> (= <code>ubuntu-24.04</code>), <code>ubuntu-26.04</code>, <code>ubuntu-22.04</code></td><td>Linux x64</td></tr>
+<tr><td><code>windows-latest</code>, <code>windows-2025</code>, <code>windows-2022</code></td><td>Windows x64</td></tr>
+<tr><td><code>ubuntu-24.04-arm</code>, <code>windows-11-arm</code></td><td>arm64 Linux / Windows</td></tr>
+<tr><td><code>macos-latest</code> (macOS 26, Apple silicon), <code>macos-15</code>, <code>macos-15-intel</code></td><td>macOS</td></tr>
+<tr><td><code>ubuntu-slim</code></td><td>1-vCPU Linux for light jobs; jobs stop after 15 minutes</td></tr>
+</table></div>
+<p>Standard Linux and Windows runners have 2 vCPU / 8 GB RAM in private repositories and 4 vCPU / 16 GB in public ones. A job can run for up to <b>6 hours</b> on a GitHub-hosted runner.</p>`},
+    {h:"Bigger hosted machines", p:`<b>Larger runners</b> (GitHub Team and Enterprise Cloud) give more CPU, RAM and disk, GPU and arm64 options. Linux and Windows larger runners can also have <b>static IP addresses</b>, <b>Azure private networking</b> and <b>custom images</b>. They sit in runner groups and are always billed per minute, also in public repositories.<br>Azure Pipelines has a counterpart: <b>GitHub-hosted agents (pay-as-you-go)</b>. Once you turn them on in billing settings, a pool called <code>GitHub-hosted Agents</code> appears with bigger images, billed per minute with no free tier.`,
+     lang:"yaml", code:`pool:
+  name: 'GitHub-hosted Agents'      # Azure Pipelines, pay-as-you-go
+  vmImage: 'ubuntu-24.04-16-core'`}
+  ],
+  tip:`"Needs more disk, RAM or CPU than Microsoft-hosted agents" → self-hosted agents, <b>Managed DevOps Pools</b> or scale set agents (or the per-minute GitHub-hosted agents). "Needs a fixed IP to allowlist" with GitHub-hosted compute → <b>larger runner with static IP</b>. Remember that <code>-latest</code> labels move to new images over time.`,
+  exercises:[
+    {id:"ho1", type:"mc", title:"No space left on device",
+     q:`Builds on Microsoft-hosted agents fail with <i>"no space left on device"</i>. The job needs about 60 GB of scratch space and 16 GB of RAM. You want the same preinstalled software as the hosted image and as little infrastructure work as possible. What do you do?`,
+     options:[
+       "Open a support request to enlarge the disks of the Azure Pipelines pool",
+       "Switch vmImage to windows-latest, which comes with a larger disk",
+       "Buy another Microsoft-hosted parallel job",
+       "Create a Managed DevOps Pool that uses the matching Azure Pipelines image with a larger agent size or a data disk"
+     ], answer:3,
+     hint:`Microsoft-hosted hardware is fixed. Which option gives you bigger machines with the same image and no VMs to manage yourself?`,
+     why:`Microsoft-hosted agents can't be enlarged, and a parallel job only adds concurrency. A <b>Managed DevOps Pool</b> can use the same Azure Pipelines images as Microsoft-hosted agents, lets you choose the VM size and attach a data disk, and Microsoft runs the VMs for you.`},
+    {id:"ho2", type:"lines", title:"Spot the retired images",
+     q:`This pipeline was written in 2024. Click every line that points to an image that is <b>retired</b> on Microsoft-hosted agents today.`,
+     code:[
+       "jobs:",
+       "- job: Legacy",
+       "  pool:",
+       "    vmImage: windows-2019",
+       "- job: Linux",
+       "  pool:",
+       "    vmImage: ubuntu-24.04",
+       "- job: OldLinux",
+       "  pool:",
+       "    vmImage: ubuntu-20.04",
+       "- job: Mac",
+       "  pool:",
+       "    vmImage: macOS-13",
+       "- job: Win",
+       "  pool:",
+       "    vmImage: windows-2022"
+     ], answer:[3,9,12],
+     hint:`Three images reached end of life in 2025: one Windows, one Ubuntu, one macOS.`,
+     why:`<code>windows-2019</code> was retired on 31 December 2025, <code>ubuntu-20.04</code> was retired in 2025 and <code>macOS-13</code> was retired on 4 December 2025. <code>ubuntu-24.04</code> and <code>windows-2022</code> are current. Jobs that ask for a retired image fail, so pin a supported label and watch the deprecation schedule.`},
+    {id:"ho3", type:"multi", title:"True about Microsoft-hosted agents",
+     q:`Which statements about Microsoft-hosted agents are true? <i>Select all that apply.</i>`,
+     options:[
+       "Every job gets a freshly imaged VM that is discarded afterwards",
+       "Files checked out in job 1 are still on disk for job 2 of the same run",
+       "You can't connect them to your corporate network with VPN or ExpressRoute",
+       "You can RDP or SSH into the agent to debug a failing job",
+       "Steps run as an administrator on Windows and as a passwordless sudo user on Linux",
+       "If an image update breaks your build, you can pin last week's image version"
+     ], answer:[0,2,4],
+     hint:`Think "disposable, locked-down VM that always runs the newest image".`,
+     why:`Each job gets a new VM that is thrown away afterwards, so nothing survives between jobs (use artifacts or caching instead). Traffic goes over the public internet, with no VPN or ExpressRoute. You get admin or sudo rights inside the job, but you can't connect to the machine remotely and you can't roll back to an earlier image version.`},
+    {id:"ho4", type:"text", lang:"yaml", title:"Three hosted platforms",
+     q:`Write <code>azure-pipelines.yml</code> with three jobs on Microsoft-hosted agents. Use explicit labels, <b>not</b> <code>-latest</code>:
+      <ul class="tips">
+        <li>job <code>Linux</code> on Ubuntu 24.04</li>
+        <li>job <code>Windows</code> on Windows Server 2022</li>
+        <li>job <code>Mac</code> on macOS 15</li>
+      </ul>Each job runs one <code>script</code> step (any command).`,
+     starter:`jobs:
+`,
+     checks:[
+       {l:"Job Linux uses vmImage ubuntu-24.04 and has steps", t:a => a.item("jobs",{job:/^linux$/i,"pool.vmImage":/^ubuntu-24\.04$/i,"steps[].*":/\S/})},
+       {l:"Job Windows uses vmImage windows-2022 and has steps", t:a => a.item("jobs",{job:/^windows$/i,"pool.vmImage":/^windows-2022$/i,"steps[].*":/\S/})},
+       {l:"Job Mac uses vmImage macOS-15 and has steps", t:a => a.item("jobs",{job:/^mac$/i,"pool.vmImage":/^macos-15$/i,"steps[].*":/\S/})},
+       {l:"No -latest labels", t:a => !a.h("**vmImage", /latest/i)}     ],
+     hint:`Each list item under <code>jobs:</code> starts with <code>- job: Name</code>, then <code>pool:</code> with <code>vmImage:</code> indented under it, then <code>steps:</code>. The macOS label is <code>macOS-15</code>.`,
+     solution:`jobs:
+- job: Linux
+  pool:
+    vmImage: ubuntu-24.04
+  steps:
+  - script: uname -a
+- job: Windows
+  pool:
+    vmImage: windows-2022
+  steps:
+  - script: ver
+- job: Mac
+  pool:
+    vmImage: macOS-15
+  steps:
+  - script: sw_vers`,
+     why:`Each job picks its own image with <code>pool.vmImage</code> and gets its own fresh VM. Explicit labels such as <code>ubuntu-24.04</code> keep builds predictable when Microsoft moves a <code>-latest</code> label to a new image.`},
+    {id:"ho5", type:"mc", title:"A fixed IP for the firewall",
+     q:`A GitHub Actions workflow must call an on-premises API whose firewall only accepts a short, fixed list of source IP addresses. Security won't allowlist all GitHub Actions ranges from the <code>/meta</code> API. You want to keep machines that GitHub manages. What do you use?`,
+     options:[
+       "A GitHub-hosted larger runner with static IP addresses, and allowlist those",
+       "Allowlist the actions ranges from the GitHub meta API after all; they rarely change",
+       "The ubuntu-slim runner, because it always uses the same IP",
+       "The AzureCloud service tag for your Azure region"
+     ], answer:0,
+     hint:`Only one kind of GitHub-managed runner can get IP addresses that stay the same.`,
+     why:`Larger runners (Linux and Windows) can be given <b>static IP ranges</b> that you can allowlist. The <code>/meta</code> ranges are large, shared with other customers and change, so GitHub advises against allowlisting them. Standard runners have no fixed IP, and Azure service tags don't describe GitHub's runners.`}
+  ]
+},
+/* ================================================================ 3 */
+{
+  group:"Hosted & self-hosted",
+  title:"Agent pools & self-hosted agents",
+  tag:"pools · queues · install · authentication · capabilities · demands",
+  intro:`A <b>self-hosted agent</b> is the Azure Pipelines agent software on a machine you own: a VM, a physical server or a container. You choose the hardware, preinstall tools, keep caches and put it inside your network. In return, patching, scaling and security are your job.`,
+  sections:[
+    {h:"Pools, queues and permissions", p:`<b>Agent pools</b> are defined at organization level and can be shared by several projects. A project sees a pool through a project-level reference (historically called an <b>agent queue</b>). Two pools exist by default: <b>Azure Pipelines</b> (Microsoft-hosted) and <b>Default</b> (empty, for your own agents).`,
+     after:`<ul class="tips">
+<li>Organization-level pool roles: <b>Reader</b>, <b>Service Account</b>, <b>Administrator</b>. Registering an agent needs the <b>Administrator</b> role on the pool.</li>
+<li>Project-level roles: Reader, User, Creator, Administrator.</li>
+<li>A pipeline must be <b>authorized</b> to use a pool: grant access to all pipelines, or approve each pipeline the first time it uses the pool.</li>
+</ul>`},
+    {h:"Install and register (Linux)", lang:"sh", code:`mkdir myagent && cd myagent
+tar zxvf ~/Downloads/<agent-package>.tar.gz
+./config.sh                 # prompts for URL, auth type, pool, agent name
+./run.sh                    # try it interactively first (Ctrl+C to stop)
+sudo ./svc.sh install       # then run it as a systemd service
+sudo ./svc.sh start`,
+     after:`<p>On Windows it's <code>.\\config.cmd</code>, and you answer yes to "run as service" (or pass <code>--runAsService</code>). Unattended setup passes everything as flags:</p>`},
+    {h:"Unattended configuration", lang:"sh", code:`./config.sh --unattended --url https://dev.azure.com/contoso --auth pat --token $AZP_TOKEN --pool Linux-Build --agent build-01`,
+     after:`<div class="tablewrap"><table class="ref">
+<tr><th>Registration auth (Azure DevOps Services)</th><th>Notes</th></tr>
+<tr><td><b>Personal access token</b> (<code>--auth pat</code>)</td><td>PAT scope <b>Agent Pools (Read &amp; manage)</b></td></tr>
+<tr><td><b>Device code flow</b></td><td>Interactive Microsoft Entra sign-in</td></tr>
+<tr><td><b>Service principal</b> (<code>SP</code>)</td><td>Client ID, tenant ID and secret. The service principal needs the Administrator role on the pool.</td></tr>
+</table></div>
+<p>The credential is only used to <b>register</b>. Any flag can also come from an environment variable named <code>VSTS_AGENT_INPUT_&lt;FLAG&gt;</code>, for example <code>VSTS_AGENT_INPUT_TOKEN</code>.</p>`},
+    {h:"Capabilities and demands", p:`An agent advertises <b>system capabilities</b>, which it discovers itself (OS, installed tools, environment variables), and <b>user capabilities</b> that you add by hand. A job lists <b>demands</b>, and only agents whose capabilities satisfy all of them get the job. Capabilities are read when the agent starts, so <b>restart the agent</b> after you install software.`,
+     lang:"yaml", code:`pool:
+  name: Linux-Build
+  demands:
+  - maven                    # capability must exist
+  - Agent.OS -equals Linux   # capability must have this value`,
+     after:`<p>With Microsoft-hosted agents you pick an image instead; demands are meant for self-hosted agents.</p>`},
+    {h:"How the agent talks to Azure Pipelines", lang:"text", code:`agent ──HTTPS 443──▶ Azure Pipelines      (always outbound, no inbound ports)
+1. register  → gets a listener OAuth token
+2. long-poll the job queue
+3. job found → downloads the job + a short-lived, job-specific OAuth token
+4. job done  → token discarded, back to polling
+Job payloads are encrypted with the agent's public key.`,
+     after:`<p><b>Service vs. interactive:</b> run production agents as a <b>service</b> so they restart with the machine. UI tests that need a desktop need an <b>interactive</b> agent with automatic sign-in. <code>./run.sh --once</code> takes a single job and then exits.</p>`}
+  ],
+  tip:`"Job stays queued: no agent satisfies the demands" → check capabilities and restart the agent after installing tools. "Who may register agents?" → the pool's <b>Administrator</b> role. Agents only need <b>outbound 443</b>. The registration PAT isn't used afterwards, so it expiring doesn't take the agent offline.`,
+  exercises:[
+    {id:"ag1", type:"order", title:"Life of a Linux agent",
+     q:`Put the steps of setting up (and later retiring) a self-hosted Linux agent in order.`,
+     items:[
+       "Extract the agent package into its own folder",
+       "Run ./config.sh and give the URL, auth type, pool and agent name",
+       "Test it with ./run.sh, then stop it with Ctrl+C",
+       "sudo ./svc.sh install",
+       "sudo ./svc.sh start",
+       "When retiring it: stop and uninstall the service, then run ./config.sh remove"
+     ],
+     hint:`The service script <code>svc.sh</code> is generated by configuration, so it can't come first.`,
+     why:`You configure (register) the agent first, which also generates <code>svc.sh</code>. Running it interactively once proves it works. Then you install and start the service. To retire it, stop and uninstall the service before <code>./config.sh remove</code> unregisters the agent from the pool.`},
+    {id:"ag2", type:"text", lang:"sh", title:"Register an agent unattended",
+     q:`The agent package is extracted on a Linux VM. Write the commands to:
+      <ul class="tips">
+        <li>register it <b>unattended</b> with <code>https://dev.azure.com/contoso</code>, using a PAT that is in <code>$AZP_TOKEN</code></li>
+        <li>put it in pool <code>Linux-Build</code> with agent name <code>build-01</code></li>
+        <li>install and start it as a systemd service</li>
+      </ul>`,
+     starter:`# run from the agent folder
+`,
+     checks:[
+       {l:"./config.sh is called with --unattended", t:a => flag(cmd(a, AP_CFG), "unattended")},
+       {l:"--url https://dev.azure.com/contoso", t:a => flag(cmd(a, AP_CFG), "url", /^https:\/\/dev\.azure\.com\/contoso\/?$/i)},
+       {l:"--auth pat with a --token", t:a => { const c = cmd(a, AP_CFG); return flag(c, "auth", /^pat$/i) && flag(c, "token", /\S/); }},
+       {l:"--pool Linux-Build", t:a => flag(cmd(a, AP_CFG), "pool", /^Linux-Build$/i)},
+       {l:"--agent build-01", t:a => flag(cmd(a, AP_CFG), "agent", /^build-01$/i)},
+       {l:"sudo ./svc.sh install after the configuration", t:a => { const c = cmd(a, AP_CFG), i = at(a, /^sudo\s+(\.\/)?svc\.sh\s+install\b/); return !!c && i > c.idx; }},
+       {l:"sudo ./svc.sh start after the install", t:a => { const i = at(a, /^sudo\s+(\.\/)?svc\.sh\s+install\b/), s = at(a, /^sudo\s+(\.\/)?svc\.sh\s+start\b/); return i >= 0 && s > i; }}
+     ],
+     hint:`Required flags: <code>--unattended --url --auth --token --pool --agent</code>. The service script needs <code>sudo</code> because it uses <code>systemctl</code>.`,
+     solution:`./config.sh --unattended --url https://dev.azure.com/contoso --auth pat --token $AZP_TOKEN --pool Linux-Build --agent build-01
+sudo ./svc.sh install
+sudo ./svc.sh start`,
+     why:`<code>--unattended</code> stops all prompts, so every answer must come from flags (or <code>VSTS_AGENT_INPUT_*</code> variables). The PAT only registers the agent; after that it uses its own OAuth tokens. <code>svc.sh install</code> creates the systemd unit and <code>svc.sh start</code> starts it, so the agent survives reboots.`},
+    {id:"ag3", type:"text", lang:"yaml", title:"Route the job with demands",
+     q:`Write a pipeline whose job runs only on <b>self-hosted</b> agents in pool <code>Linux-Build</code> that
+      <ul class="tips">
+        <li>have a capability named <code>maven</code></li>
+        <li>run Linux (capability <code>Agent.OS</code> equals <code>Linux</code>)</li>
+      </ul>The job has one script step: <code>mvn -B package</code>.`,
+     starter:`pool:
+`,
+     checks:[
+       {l:"pool name is Linux-Build", t:a => a.h("**pool.name", /^Linux-Build$/i)},
+       {l:"Demand: maven exists", t:a => a.h("**pool.demands[]?", /^maven$/i)},
+       {l:"Demand: Agent.OS -equals Linux", t:a => a.h("**pool.demands[]?", /^Agent\.OS\s+-equals\s+Linux$/i)},
+       {l:"No vmImage (that would mean a hosted agent)", t:a => !a.h("**vmImage")},
+       {l:"A script step runs mvn -B package", t:a => a.h("**steps[].script", /mvn\s+-B\s+package/i)}
+     ],
+     hint:`Demands are a list under <code>pool:</code>. "Exists" is just the capability name; a comparison is <code>Name -equals Value</code>.`,
+     solution:`pool:
+  name: Linux-Build
+  demands:
+  - maven
+  - Agent.OS -equals Linux
+steps:
+- script: mvn -B package`,
+     why:`The job only goes to agents whose capabilities satisfy <b>every</b> demand. A bare name checks that the capability exists, and <code>-equals</code> compares its value. Using <code>vmImage</code> would send the job to the Microsoft-hosted pool instead.`},
+    {id:"ag4", type:"mc", title:"Stuck in the queue",
+     q:`You installed Maven on a self-hosted agent while the agent service was running. Jobs with <code>demands: maven</code> still wait with <i>"No agent found in pool Linux-Build which satisfies the specified demands"</i>. What fixes it?`,
+     options:[
+       "Restart the agent so it rediscovers its system capabilities (or add maven as a user capability)",
+       "Create a new PAT, because the registration PAT has expired",
+       "Remove the demand and switch the job to vmImage: ubuntu-latest",
+       "Buy an additional self-hosted parallel job"
+     ], answer:0,
+     hint:`When does the agent read its capabilities?`,
+     why:`System capabilities, including environment variables and detected tools, are collected when the agent <b>starts</b>. After installing software, restart the agent (or add a user capability by hand). The PAT isn't used after registration, and a parallel job wouldn't help because no agent matches.`},
+    {id:"ag5", type:"multi", title:"How agents communicate",
+     q:`Which statements about self-hosted Azure Pipelines agents are true? <i>Select all that apply.</i>`,
+     options:[
+       "The agent only makes outbound HTTPS connections; Azure Pipelines never connects in to it",
+       "The agent asks for work using HTTP long polling",
+       "For each job the agent receives a short-lived, job-specific OAuth token",
+       "The PAT used for registration must stay valid, or the agent goes offline",
+       "You must open an inbound port on the agent's firewall for Azure DevOps",
+       "Registering an agent requires the Administrator role on the agent pool"
+     ], answer:[0,1,2,5],
+     hint:`Registration credentials are only used once. Everything after that is outbound.`,
+     why:`The agent starts every connection (HTTPS 443), long-polls the queue and gets a scoped, short-lived token for each job. The registration identity (PAT, device code or service principal) needs pool <b>Administrator</b> rights, but it isn't kept on the agent, so the PAT expiring later doesn't matter. No inbound ports are needed.`}
+  ]
+},
+/* ================================================================ 4 */
+{
+  group:"Hosted & self-hosted",
+  title:"Self-hosted GitHub runners",
+  tag:"registration · labels · runner groups · ephemeral · JIT",
+  intro:`GitHub's self-hosted runner works much like the Azure Pipelines agent: you register it once, it long-polls GitHub over outbound HTTPS 443 and runs jobs whose <code>runs-on</code> matches it. You can register runners for a <b>repository</b>, an <b>organization</b> or an <b>enterprise</b>.`,
+  sections:[
+    {h:"Register and run", lang:"sh", code:`# token from Settings → Actions → Runners → New self-hosted runner (or the REST API); it expires after an hour
+./config.sh --url https://github.com/contoso --token <REGISTRATION_TOKEN> --labels gpu --runnergroup build-runners
+./run.sh                    # interactive
+sudo ./svc.sh install       # or as a service (Linux / macOS)
+sudo ./svc.sh start`,
+     after:`<p>Runners update themselves. If you register with <code>--disableupdate</code>, you have to install new runner versions yourself, or GitHub stops sending jobs to the runner.</p>`},
+    {h:"Labels and runs-on", p:`Every self-hosted runner gets the <code>self-hosted</code> label plus OS (<code>linux</code>, <code>windows</code>, <code>macOS</code>) and architecture (<code>x64</code>, <code>ARM</code>, <code>ARM64</code>) labels, unless you use <code>--no-default-labels</code>. Add your own with <code>--labels</code>. Labels aren't case-sensitive. When <code>runs-on</code> is a list, a runner needs <b>all</b> of the labels.`,
+     lang:"yaml", code:`jobs:
+  gpu-tests:
+    runs-on: [self-hosted, linux, x64, gpu]   # must have all four labels
+  deploy:
+    runs-on:
+      group: prod-deployers                   # only runners in this group…
+      labels: [linux]                         # …that also have this label`},
+    {h:"Runner groups", after:`<ul class="tips">
+<li>Groups exist at <b>organization</b> and <b>enterprise</b> level; every organization has a default group. Creating more organization groups needs GitHub Team or Enterprise.</li>
+<li>A group's access policy limits it to <b>selected repositories</b> and, optionally, <b>selected workflows</b>.</li>
+<li><b>Public repositories</b> can't use a group's runners unless you allow it.</li>
+<li>A runner is in exactly one group at a time. Larger runners are managed in groups too.</li>
+</ul>`},
+    {h:"Ephemeral and just-in-time runners", lang:"sh", code:`# Ephemeral: takes exactly one job, then de-registers
+./config.sh --url https://github.com/contoso --token <TOKEN> --ephemeral
+
+# Just-in-time (JIT): no registration token on the machine at all
+POST /orgs/contoso/actions/runners/generate-jitconfig   → encoded_jit_config
+./run.sh --jitconfig <encoded_jit_config>`,
+     after:`<p>One job per clean machine stops one job from leaving malware or secrets behind for the next. Autoscalers, including Actions Runner Controller, use JIT runners.</p>
+<div class="note">⚠️ Don't attach self-hosted runners to <b>public</b> repositories: anyone can open a pull request from a fork that runs code on your machine and inside your network.</div>`}
+  ],
+  tip:`<code>runs-on: [self-hosted, linux, gpu]</code> means all labels must match. Restrict who can use runners with <b>runner groups</b> (repositories, workflows). For "clean machine for every job", choose <b>ephemeral</b> or <b>JIT</b> runners. For public repositories, use GitHub-hosted runners.`,
+  exercises:[
+    {id:"rn1", type:"text", lang:"yaml", title:"Target the GPU runners",
+     q:`Write <code>.github/workflows/gpu.yml</code>:
+      <ul class="tips">
+        <li>triggered on <code>push</code></li>
+        <li>one job <code>test</code> that must run on a <b>self-hosted Linux x64</b> runner that also has the custom label <code>gpu</code></li>
+        <li>steps: <code>actions/checkout</code> (any version), then <code>run: nvidia-smi</code></li>
+      </ul>`,
+     starter:`name: GPU tests
+`,
+     checks:[
+       {l:"Triggered on push", t:a => a.h("on","push") || a.h("on[]","push") || a.h("on.push")},
+       {l:"runs-on includes self-hosted", t:a => a.h("jobs.test.runs-on[]?","self-hosted")},
+       {l:"runs-on includes linux and x64", t:a => a.h("jobs.test.runs-on[]?","linux") && a.h("jobs.test.runs-on[]?","x64")},
+       {l:"runs-on includes gpu", t:a => a.h("jobs.test.runs-on[]?","gpu")},
+       {l:"No GitHub-hosted label mixed in", t:a => !a.h("jobs.test.runs-on[]?", /latest|^ubuntu|^windows-|^macos-/i)},
+       {l:"Checks out the code, then runs nvidia-smi", t:a => a.h("jobs.test.steps[].uses", /^actions\/checkout@/i) && a.h("jobs.test.steps[].run", /nvidia-smi/)}
+     ],
+     hint:`<code>runs-on</code> takes a list: <code>[self-hosted, linux, x64, gpu]</code>. Steps are a list of <code>- uses:</code> / <code>- run:</code> items.`,
+     solution:`name: GPU tests
+on: push
+jobs:
+  test:
+    runs-on: [self-hosted, linux, x64, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - run: nvidia-smi`,
+     why:`A runner only gets the job if it has <b>every</b> label in the list. <code>self-hosted</code>, <code>linux</code> and <code>x64</code> are default labels, and <code>gpu</code> was added with <code>--labels gpu</code> at registration. If you added <code>ubuntu-latest</code> to the list, no runner would match, because no machine has all of those labels.`},
+    {id:"rn2", type:"text", lang:"yaml", title:"Deploy from a runner group",
+     q:`Write a workflow, started manually with <code>workflow_dispatch</code>, whose job <code>deploy</code> runs only on runners in the runner group <code>prod-deployers</code> that also have the label <code>linux</code>. Its only step runs <code>./deploy.sh</code>.`,
+     starter:`name: Deploy
+`,
+     checks:[
+       {l:"Triggered by workflow_dispatch", t:a => a.h("on","workflow_dispatch") || a.h("on[]","workflow_dispatch") || a.h("on.workflow_dispatch")},
+       {l:"runs-on.group is prod-deployers", t:a => a.h("jobs.deploy.runs-on.group", /^prod-deployers$/i)},
+       {l:"runs-on.labels includes linux", t:a => a.h("jobs.deploy.runs-on.labels[]?", "linux")},
+       {l:"The group isn't used as a plain label", t:a => !a.h("jobs.deploy.runs-on[]?", /prod-deployers/i)},
+       {l:"Step runs ./deploy.sh", t:a => a.h("jobs.deploy.steps[].run", /\.\/deploy\.sh/)}
+     ],
+     hint:`Use the mapping form of <code>runs-on</code>, with <code>group:</code> and <code>labels:</code> as its two keys.`,
+     solution:`name: Deploy
+on: workflow_dispatch
+jobs:
+  deploy:
+    runs-on:
+      group: prod-deployers
+      labels: [linux]
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./deploy.sh`,
+     why:`<code>runs-on.group</code> limits the job to runners in that group, and the group's access policy decides which repositories and workflows may use it. <code>labels</code> narrows it further, and a runner must meet both. A group name in a plain label list is treated as a label and matches nothing.`},
+    {id:"rn3", type:"multi", title:"What runner groups do",
+     q:`Which statements about runner groups are true? <i>Select all that apply.</i>`,
+     options:[
+       "A group can be limited to selected repositories in the organization",
+       "A group can be limited to selected workflows",
+       "By default, public repositories can't use the runners in a group",
+       "A runner can be in several groups at the same time",
+       "A job can use a group's runners if its labels match, even if its repository wasn't given access",
+       "Self-hosted runners are recommended for public repositories because forks can't reach them"
+     ], answer:[0,1,2],
+     hint:`Groups are an access-control boundary that labels can't get around.`,
+     why:`Runner groups control <b>which repositories and workflows</b> can use a set of runners, and public repositories are excluded by default. A runner belongs to one group, and matching labels don't give a repository access to a group it wasn't granted. Forks of public repositories <i>can</i> run code on self-hosted runners, which is why GitHub advises against that setup.`},
+    {id:"rn4", type:"text", lang:"sh", title:"One-job runner in a group",
+     q:`Write the commands to register an <b>organization-level</b> runner for <code>https://github.com/contoso</code>:
+      <ul class="tips">
+        <li>registration token in <code>$RUNNER_TOKEN</code>, no prompts</li>
+        <li>in runner group <code>build-runners</code>, with the extra label <code>gpu</code></li>
+        <li>it must take exactly <b>one</b> job and then de-register</li>
+      </ul>Then start it.`,
+     starter:`# run from the runner folder
+`,
+     checks:[
+       {l:"./config.sh with --url https://github.com/contoso", t:a => flag(cmd(a, AP_CFG), "url", /^https:\/\/github\.com\/contoso\/?$/i)},
+       {l:"--token is given and --unattended is set", t:a => { const c = cmd(a, AP_CFG); return flag(c, "token", /\S/) && flag(c, "unattended"); }},
+       {l:"--runnergroup build-runners", t:a => flag(cmd(a, AP_CFG), "runnergroup", /^build-runners$/i)},
+       {l:"--labels includes gpu", t:a => flag(cmd(a, AP_CFG), "labels", /(^|,)\s*gpu\s*(,|$)/i)},
+       {l:"--ephemeral", t:a => flag(cmd(a, AP_CFG), "ephemeral")},
+       {l:"The runner is started after configuration (run.sh or the service)", t:a => { const c = cmd(a, AP_CFG); const r = Math.max(at(a, /^(\.\/)?run\.sh\b/), at(a, /svc\.sh\s+start\b/)); return !!c && r > c.idx; }}
+     ],
+     hint:`The flags are <code>--url</code>, <code>--token</code>, <code>--runnergroup</code>, <code>--labels</code>, <code>--ephemeral</code> and <code>--unattended</code>.`,
+     solution:`./config.sh --unattended --url https://github.com/contoso --token $RUNNER_TOKEN --runnergroup build-runners --labels gpu --ephemeral
+./run.sh`,
+     why:`An organization URL registers the runner at organization level, so it can join a runner group. <code>--ephemeral</code> runs exactly one job and then removes the runner. Combined with a fresh VM or container for every runner, each job starts on a clean machine.`},
+    {id:"rn5", type:"fill", title:"Just-in-time runner", mono:true,
+     q:`Complete the flow for a just-in-time (JIT) runner.`,
+     tpl:`# 1. An autoscaler asks GitHub for a JIT configuration (organization level)
+POST https://api.github.com/orgs/contoso/actions/runners/[[0]]
+     {"name":"jit-01", "runner_group_id":1, "labels":["linux","x64"]}
+
+# 2. The new VM starts the runner with the returned encoded_jit_config
+./run.sh --[[1]] "$ENCODED_JIT_CONFIG"
+
+# 3. The runner takes one job and is removed, so it is [[2]]`,
+     blanks:[["generate-jitconfig"],["jitconfig"],["ephemeral","single-use","single use"]],
+     hint:`The REST endpoint "generates" a "JIT config". The run.sh flag has the same name as the thing you pass to it.`,
+     why:`<code>POST …/actions/runners/generate-jitconfig</code> creates a single-use runner registration and returns <code>encoded_jit_config</code>. <code>./run.sh --jitconfig</code> starts the runner without ever running <code>config.sh</code> or holding a registration token, and the runner is ephemeral: one job, then it's gone.`}
+  ]
+},
+/* ================================================================ 5 */
+{
+  group:"Elastic infrastructure",
+  title:"Scale set agents & Managed DevOps Pools",
+  tag:"VMSS agents · Managed DevOps Pools · images · stateless · standby",
+  intro:`Elastic pools give you self-hosted flexibility (VM size, image, network) without paying for idle VMs. Azure Pipelines started with <b>Virtual Machine Scale Set (VMSS) agents</b>. Its successor, <b>Managed DevOps Pools</b>, is the option Microsoft now recommends for autoscaling self-hosted pools.`,
+  sections:[
+    {h:"Scale set agents: you own the scale set", p:`You create the scale set in <b>your</b> subscription, then add an agent pool of type <b>Azure Virtual Machine Scale Set</b>. Azure Pipelines installs the agent through a VM extension and resizes the scale set, so Azure autoscale must be off. Don't preinstall the agent in your image.`,
+     lang:"sh", code:`az vmss create --resource-group rg-agents --name vmss-agents --image Ubuntu2204 --vm-sku Standard_D4s_v5 --instance-count 2 --disable-overprovision --upgrade-policy-mode manual --single-placement-group false --platform-fault-domain-count 1 --load-balancer "" --orchestration-mode Uniform --generate-ssh-keys`,
+     after:`<ul class="tips">
+<li>Required: <code>--disable-overprovision</code> and <code>--upgrade-policy-mode manual</code>. No Azure autoscale, Uniform orchestration.</li>
+<li>Pool settings: <b>Maximum number of VMs</b>, <b>Number of agents to keep on standby</b>, <b>Delay in minutes before deleting excess idle agents</b> (default 30), <b>Automatically tear down VMs after every use</b>, <b>Save an unhealthy agent for investigation</b>, <b>Configure VMs to run interactive tests</b>.</li>
+<li>Azure Pipelines checks the pool every 5 minutes and scales in steps. Windows and Ubuntu only, no macOS. A Custom Script Extension can run before the agent extension.</li>
+</ul>`},
+    {h:"Managed DevOps Pools: Microsoft runs the VMs", p:`A Managed DevOps Pool is an Azure resource (<code>Microsoft.DevOpsInfrastructure/pools</code>). The VMs run in a Microsoft-managed subscription, and you configure image, size, scaling and networking on the resource.`,
+     after:`<ul class="tips">
+<li><b>Prerequisites</b>: register the <code>Microsoft.DevOpsInfrastructure</code> and <code>Microsoft.DevCenter</code> resource providers, create a <b>dev center</b> and <b>dev center project</b>, connect the Azure DevOps organization to Microsoft Entra ID, have project-level agent pool Administrator or Creator rights, and enough quota for the VM size. <b>DevOps Infrastructure Contributor</b> is the least-privileged Azure role for creating pools.</li>
+<li><b>Images</b>: Azure Pipelines images (the same as Microsoft-hosted agents, e.g. <code>windows-2025-g2</code>, <code>ubuntu-24.04-g2</code>), selected marketplace images, or your own <b>generalized</b> Azure Compute Gallery images (grant the <code>DevOpsInfrastructure</code> service principal <i>Compute Gallery Image Reader</i>).</li>
+<li><b>Agent state</b>: <b>stateless</b> ("Fresh agent every time", the default and the recommended choice) or <b>stateful</b> (agents reused for up to 7 days, with an optional grace period).</li>
+<li><b>Standby agents</b>: off, manual schemes (weekday or all-week, with a time zone) or automatic.</li>
+<li><b>Networking</b>: Microsoft-provided, or injected into a subnet of <b>your VNet</b> to reach private resources.</li>
+<li><b>Cost</b>: self-hosted parallel jobs plus the Azure compute you use. The same model as scale set agents, but VM reservations don't apply.</li>
+</ul>
+<div class="tablewrap"><table class="ref">
+<tr><th></th><th>Managed DevOps Pools</th><th>Scale set agents</th></tr>
+<tr><td>Where the VMs run</td><td>Microsoft-managed subscription</td><td>Your subscription</td></tr>
+<tr><td>Images per pool</td><td>Several (pick one with a demand)</td><td>One</td></tr>
+<tr><td>Standby</td><td>Schedules or automatic</td><td>One fixed count</td></tr>
+<tr><td>Scale-out</td><td>One agent at a time, up to thousands</td><td>Percentage steps, hundreds</td></tr>
+<tr><td>Organizations</td><td>Can serve several</td><td>One</td></tr>
+</table></div>`},
+    {h:"Picking an image in the pipeline", lang:"yaml", code:`pool:
+  name: fabrikam-mdp
+  demands:
+  - ImageOverride -equals ubuntu-24.04-g2   # alias of an image in the pool (no quotes)`,
+     after:`<p>Without an <code>ImageOverride</code> demand, the job runs on the <b>first image</b> in the pool's list.</p>`}
+  ],
+  tip:`"Autoscaling self-hosted Azure Pipelines agents with little ops work, VNet access, several images, office-hours standby" → <b>Managed DevOps Pools</b>. Scale set agents still work, but they're the older option. Both are billed as <b>self-hosted</b> parallel jobs plus Azure compute.`,
+  exercises:[
+    {id:"el1", type:"text", lang:"sh", title:"Create the scale set correctly",
+     q:`Write the <code>az vmss create</code> command for a scale set agent pool:
+      <ul class="tips">
+        <li>resource group <code>rg-agents</code>, name <code>vmss-agents</code>, image <code>Ubuntu2204</code></li>
+        <li>Uniform orchestration</li>
+        <li>the two settings Azure Pipelines <b>requires</b> so that it can manage the scale set</li>
+      </ul>(Other flags, such as SSH keys or a load balancer, are up to you.)`,
+     starter:``,
+     checks:[
+       {l:"az vmss create", t:a => !!cmd(a, /^create$/, /\baz\s+vmss$/)},
+       {l:"Resource group rg-agents and name vmss-agents", t:a => { const c = cmd(a, /^create$/, /\baz\s+vmss$/); return flag(c, ["resource-group","g"], /^rg-agents$/i) && flag(c, ["name","n"], /^vmss-agents$/i); }},
+       {l:"Image Ubuntu2204", t:a => flag(cmd(a, /^create$/, /\baz\s+vmss$/), "image", /^Ubuntu2204$/i)},
+       {l:"Overprovisioning disabled", t:a => flag(cmd(a, /^create$/, /\baz\s+vmss$/), "disable-overprovision")},
+       {l:"Upgrade policy manual", t:a => flag(cmd(a, /^create$/, /\baz\s+vmss$/), "upgrade-policy-mode", /^manual$/i)},
+       {l:"Orchestration mode Uniform", t:a => flag(cmd(a, /^create$/, /\baz\s+vmss$/), "orchestration-mode", /^uniform$/i)}
+     ],
+     hint:`One flag turns off overprovisioning, another sets the upgrade policy mode. The orchestration mode flag takes <code>Uniform</code>.`,
+     solution:`az vmss create --resource-group rg-agents --name vmss-agents --image Ubuntu2204 --vm-sku Standard_D4s_v5 --instance-count 2 --disable-overprovision --upgrade-policy-mode manual --load-balancer "" --orchestration-mode Uniform --generate-ssh-keys`,
+     why:`Azure Pipelines adds, reimages and deletes the VMs itself. Overprovisioning would create extra VMs it doesn't expect, and an automatic or rolling upgrade policy would change VMs behind its back, so both are blocked. Azure autoscale must also be off: Azure Pipelines scales based on the job queue.`},
+    {id:"el2", type:"match", title:"Translate the scale set settings",
+     q:`You're moving a scale set agent pool to Managed DevOps Pools. Match each scale set setting to its Managed DevOps Pools equivalent.`,
+     choices:["Fresh agent every time (stateless)","Maximum agents","Standby agent mode","Grace period (stateful pool)","Interactive mode","Not available in Managed DevOps Pools"],
+     rows:[
+       ["Automatically tear down virtual machines after every use","Fresh agent every time (stateless)"],
+       ["Maximum number of virtual machines in the scale set","Maximum agents"],
+       ["Number of agents to keep on standby","Standby agent mode"],
+       ["Delay in minutes before deleting excess idle agents","Grace period (stateful pool)"],
+       ["Configure VMs to run interactive tests","Interactive mode"],
+       ["Save an unhealthy agent for investigation","Not available in Managed DevOps Pools"]
+     ],
+     hint:`An idle agent that waits for more work only exists in a pool where agents are reused.`,
+     why:`Tear down after every use becomes a <b>stateless</b> pool. The VM cap becomes <b>Maximum agents</b>. A standby count becomes a <b>standby agent mode</b> (the all-week scheme behaves the same, schedules and automatic are new). The idle delay becomes the <b>grace period</b> of a stateful pool. Interactive tests become <b>interactive mode</b>. Keeping unhealthy VMs for investigation has no equivalent.`},
+    {id:"el3", type:"text", lang:"yaml", title:"Choose images in a multi-image pool",
+     q:`Managed DevOps Pool <code>fabrikam-mdp</code> has two Azure Pipelines images: <code>windows-2025-g2</code> (listed first) and <code>ubuntu-24.04-g2</code>. Write a pipeline with two jobs that both name the image explicitly:
+      <ul class="tips">
+        <li>job <code>Build</code> on the Ubuntu 24.04 Gen 2 image</li>
+        <li>job <code>Package</code> on the Windows Server 2025 Gen 2 image</li>
+      </ul>Each job has at least one step.`,
+     starter:`jobs:
+`,
+     checks:[
+       {l:"Build uses pool fabrikam-mdp with ImageOverride -equals ubuntu-24.04-g2", t:a => a.item("jobs",{job:/^build$/i,"pool.name":/^fabrikam-mdp$/i,"pool.demands[]?":/^ImageOverride\s+-equals\s+ubuntu-24\.04-g2$/i})},
+       {l:"Package uses pool fabrikam-mdp with ImageOverride -equals windows-2025-g2", t:a => a.item("jobs",{job:/^package$/i,"pool.name":/^fabrikam-mdp$/i,"pool.demands[]?":/^ImageOverride\s+-equals\s+windows-2025-g2$/i})},
+       {l:"Both jobs have steps", t:a => a.item("jobs",{job:/^build$/i,"steps[].*":/\S/}) && a.item("jobs",{job:/^package$/i,"steps[].*":/\S/})},
+       {l:"No vmImage (that selects Microsoft-hosted images)", t:a => !a.h("**vmImage")},
+       {l:"No quotes around the alias inside the demand", t:a => !a.h("**demands[]?", /-equals\s+["']/i)}
+     ],
+     hint:`Each job gets <code>pool:</code> with <code>name: fabrikam-mdp</code> and a <code>demands:</code> list containing <code>ImageOverride -equals &lt;alias&gt;</code>.`,
+     solution:`jobs:
+- job: Build
+  pool:
+    name: fabrikam-mdp
+    demands:
+    - ImageOverride -equals ubuntu-24.04-g2
+  steps:
+  - script: echo build on Ubuntu
+- job: Package
+  pool:
+    name: fabrikam-mdp
+    demands:
+    - ImageOverride -equals windows-2025-g2
+  steps:
+  - script: echo package on Windows`,
+     why:`In a pool with several images, the <code>ImageOverride</code> demand picks the image by alias. Without it, a job lands on the first image in the list (Windows here), and adding a new image at the top would quietly change where every job runs. Microsoft's docs say not to quote the alias.`},
+    {id:"el4", type:"order", title:"Stand up a Managed DevOps Pool",
+     q:`Put the steps to get a first pipeline running on a Managed DevOps Pool in order.`,
+     items:[
+       "Register the Microsoft.DevOpsInfrastructure and Microsoft.DevCenter resource providers in the subscription",
+       "Create a dev center and a dev center project",
+       "Create the Managed DevOps Pool: image, agent size, maximum agents, networking",
+       "Reference the pool by name in the YAML pipeline's pool section and run it"
+     ],
+     hint:`Azure has to know the resource types before you can create them, and the pool is created inside a dev center project.`,
+     why:`The resource providers must be registered before any of these resources can exist. A pool needs a dev center project, and the portal can create one during pool creation. Creating the pool also creates the matching agent pool in Azure DevOps, which pipelines then use with <code>pool: name:</code>.`},
+    {id:"el5", type:"multi", title:"True about Managed DevOps Pools",
+     q:`Which statements about Managed DevOps Pools are true? <i>Select all that apply.</i>`,
+     options:[
+       "The agent VMs run in a Microsoft-managed Azure subscription, not in yours",
+       "Agents can be injected into a subnet of your own virtual network",
+       "A pool can offer several images, and pipelines pick one with the ImageOverride demand",
+       "You must first create a VM scale set in your subscription and hand it to the pool",
+       "Jobs consume Microsoft-hosted parallel jobs and the free 1,800 minutes",
+       "Stateful agents can keep caches between jobs for up to seven days"
+     ], answer:[0,1,2,5],
+     hint:`Managed DevOps Pools is self-hosted from a licensing point of view, but you don't own the VMs.`,
+     why:`Microsoft runs the VMs in its own subscription, optionally inside your VNet. You can configure several images and choose stateless or stateful agents (up to 7 days). There's no scale set for you to create; that's the older scale set agent model. For billing it counts as <b>self-hosted</b>: self-hosted parallel jobs plus the Azure resources you use.`}
+  ]
+},
+/* ================================================================ 6 */
+{
+  group:"Elastic infrastructure",
+  title:"Actions Runner Controller",
+  tag:"Kubernetes · runner scale sets · Helm · autoscaling",
+  intro:`<b>Actions Runner Controller (ARC)</b> is a Kubernetes operator that runs GitHub Actions self-hosted runners as pods and scales them with the job queue. You install it with Helm. Each <b>runner scale set</b> you install becomes something workflows can target in <code>runs-on</code>.`,
+  sections:[
+    {h:"How it works", lang:"text", code:`controller (gha-runner-scale-set-controller chart, e.g. namespace arc-systems)
+   └─ AutoscalingRunnerSet  ← one per "helm install" of gha-runner-scale-set
+        └─ listener pod ──HTTPS long poll──▶ GitHub   (no inbound webhook needed)
+             "job available" → scale the EphemeralRunnerSet
+               └─ runner pod (JIT config, one job, then deleted)`},
+    {h:"Install", lang:"sh", code:`helm install arc --namespace arc-systems --create-namespace oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+
+helm install arc-runner-set --namespace arc-runners --create-namespace --set githubConfigUrl="https://github.com/contoso" --set githubConfigSecret.github_token="$GITHUB_PAT" oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set`,
+     after:`<p>The <b>installation name</b> (<code>arc-runner-set</code>) is what workflows use: <code>runs-on: arc-runner-set</code> (or the <code>runnerScaleSetName</code> value, if you set one). A <b>GitHub App</b> is the recommended credential for repository and organization runners. Enterprise-level scale sets need a classic PAT.</p>`},
+    {h:"values.yaml essentials", lang:"yaml", code:`githubConfigUrl: "https://github.com/contoso"
+githubConfigSecret: arc-github-app     # name of an existing Kubernetes secret
+minRunners: 0                          # scale to zero when idle
+maxRunners: 20
+runnerGroup: "linux-k8s"               # must already exist in GitHub
+containerMode:
+  type: "dind"                         # or "kubernetes" (jobs/containers as separate pods)`}
+  ],
+  tip:`"Already run Kubernetes (AKS), want autoscaling, ephemeral self-hosted GitHub runners that scale to zero" → <b>ARC runner scale sets</b>. Target them with <code>runs-on: &lt;installation name&gt;</code>. The listener long-polls GitHub, so no inbound connectivity is needed.`,
+  exercises:[
+    {id:"arc1", type:"order", title:"From install to finished job",
+     q:`Order what happens from installing ARC to a job finishing on it.`,
+     items:[
+       "Install the gha-runner-scale-set-controller Helm chart",
+       "Install a gha-runner-scale-set release named arc-runner-set for the organization",
+       "The scale set's listener pod opens a long poll to GitHub",
+       "A workflow job with runs-on: arc-runner-set is queued",
+       "The listener scales up and an ephemeral runner pod with a JIT config runs the job",
+       "The runner pod is deleted after the job"
+     ],
+     hint:`Controller first, then a scale set. Pods only appear when there's work.`,
+     why:`The controller watches the custom resources that each scale set installation creates. The listener long-polls GitHub, and when a matching job is queued it scales the ephemeral runner set. Each runner pod registers with a just-in-time config, runs one job and is removed.`},
+    {id:"arc2", type:"text", lang:"yaml", title:"Write values.yaml",
+     q:`Write <code>values.yaml</code> for a runner scale set that
+      <ul class="tips">
+        <li>registers to the organization <code>https://github.com/contoso</code></li>
+        <li>uses the existing Kubernetes secret <code>arc-github-app</code> (GitHub App credentials)</li>
+        <li>scales from <b>0</b> to <b>10</b> runners</li>
+        <li>joins the runner group <code>k8s-runners</code></li>
+        <li>lets jobs run Docker commands using <b>Docker-in-Docker</b> mode</li>
+      </ul>`,
+     starter:``,
+     checks:[
+       {l:"githubConfigUrl is https://github.com/contoso", t:a => a.h("githubConfigUrl", /^https:\/\/github\.com\/contoso\/?$/i)},
+       {l:"githubConfigSecret references arc-github-app", t:a => a.h("githubConfigSecret", /^arc-github-app$/i)},
+       {l:"minRunners 0 and maxRunners 10", t:a => a.h("minRunners","0") && a.h("maxRunners","10")},
+       {l:"runnerGroup k8s-runners", t:a => a.h("runnerGroup", /^k8s-runners$/i)},
+       {l:"containerMode.type is dind", t:a => a.h("containerMode.type", /^dind$/i)}
+     ],
+     hint:`All keys are top-level except <code>type</code>, which sits under <code>containerMode:</code>. For an existing secret, <code>githubConfigSecret</code> is just the secret's name.`,
+     solution:`githubConfigUrl: "https://github.com/contoso"
+githubConfigSecret: arc-github-app
+minRunners: 0
+maxRunners: 10
+runnerGroup: "k8s-runners"
+containerMode:
+  type: "dind"`,
+     why:`<code>githubConfigUrl</code> sets the level (repository, organization or enterprise) and <code>githubConfigSecret</code> holds the credentials, either inline values or the name of a pre-created secret. <code>minRunners: 0</code> lets the set scale to zero. <code>containerMode.type: dind</code> adds a Docker daemon sidecar so jobs can build images.`},
+    {id:"arc3", type:"mc", title:"Target the scale set",
+     q:`You installed the runner scale set with <code>helm install arc-runner-set --namespace arc-runners … gha-runner-scale-set</code> (no custom scale set name). What goes in <code>runs-on</code>?`,
+     options:[
+       "runs-on: gha-runner-scale-set",
+       "runs-on: arc-runners",
+       "runs-on: arc-runner-set",
+       "runs-on: kubernetes"
+     ], answer:2,
+     hint:`It's not the chart name and not the namespace.`,
+     why:`A runner scale set is targeted by its <b>installation name</b>, the Helm release name <code>arc-runner-set</code>, unless you set <code>runnerScaleSetName</code> in the values. The chart name and the namespace aren't runner labels.`}
+  ]
+},
+/* ================================================================ 7 */
+{
+  group:"Operate it",
+  title:"Cost & licensing",
+  tag:"parallel jobs · free grants · Actions usage · storage",
+  intro:`Azure Pipelines sells <b>concurrency</b>: a parallel job lets one job run at a time, shared by the whole organization. GitHub Actions sells <b>minutes and storage</b>: each plan includes some usage, and per-minute rates apply after that. The exam likes to check that you know the free grants and what does and doesn't count.`,
+  sections:[
+    {h:"Azure Pipelines parallel jobs", after:`<div class="tablewrap"><table class="ref">
+<tr><th></th><th>Free tier (private projects)</th><th>Paid</th></tr>
+<tr><td><b>Microsoft-hosted</b></td><td>1 parallel job, up to <b>60 min</b> per job, <b>1,800 min</b> per month. Enabled once the organization is linked to an Azure subscription (billing set up).</td><td>Per parallel job: <b>360 min</b> per job, no monthly cap. Buying the first one removes the limits; it doesn't add a second concurrent job.</td></tr>
+<tr><td><b>Self-hosted</b> (incl. scale set agents and Managed DevOps Pools)</td><td><b>1</b> parallel job <b>+ 1 per active Visual Studio Enterprise subscriber</b> in the organization. No time limit.</td><td>Per parallel job. You can register any number of agents; you pay for concurrency.</td></tr>
+<tr><td><b>GitHub-hosted agents</b> (pay-as-you-go)</td><td>No free tier</td><td>Per minute, by machine size</td></tr>
+</table></div>
+<ul class="tips">
+<li>Parallel jobs belong to the <b>organization</b>, are shared by all projects and <b>can't be dedicated</b> to one project or pool.</li>
+<li>A run only uses a parallel job while it's <b>running on an agent</b>. Waiting for an approval doesn't count, and neither do agentless (server) jobs or classic releases that deploy to deployment groups.</li>
+<li>Rule of thumb: one parallel job per four to five users. The <b>pool consumption report</b> (Analytics tab of a pool) shows queued and running jobs against your limits.</li>
+<li>Azure DevOps Server doesn't charge for self-hosted concurrency. Azure DevOps <b>public projects are retired</b>: no new ones, and existing ones convert to private in 2027, along with their large free grants.</li>
+</ul>`},
+    {h:"GitHub Actions usage", after:`<ul class="tips">
+<li><b>Public repositories</b>: standard GitHub-hosted runners are free.</li>
+<li><b>Private repositories</b>: each plan includes monthly usage (Free ≈ 2,000, Pro and Team ≈ 3,000, Enterprise Cloud ≈ 50,000 standard Linux minutes). After that, per-minute rates apply. Windows minutes cost more than Linux, and macOS about ten times more.</li>
+<li><b>Self-hosted runners</b> are free and don't use up the included usage. <b>Larger runners</b> are billed per minute, also in public repositories.</li>
+<li><b>Storage</b>: artifacts and GitHub Packages share the included storage (500 MB Free, 1 GB Pro, 2 GB Team, 50 GB Enterprise Cloud). The Actions cache gets 10 GB per repository. Shorter artifact retention saves money.</li>
+<li>Budgets and spending limits stop surprise bills.</li>
+</ul>`}
+  ],
+  tip:`Self-hosted free grant = <b>1 + number of Visual Studio Enterprise subscribers</b>. "Project B waits while project A uses every parallel job" → parallel jobs are organization-wide and can't be partitioned. "Self-hosted runner minutes" are free on GitHub. "Larger runner in a public repo" is still billed.`,
+  exercises:[
+    {id:"co1", type:"mc", title:"Reserve capacity for a project",
+     q:`Contoso bought <b>2</b> Microsoft-hosted parallel jobs. Project A starts two long runs and project B's run waits in the queue. The manager wants one parallel job permanently reserved for project B. What do you tell them?`,
+     options:[
+       "Assign one of the parallel jobs to project B in Project settings → Parallel jobs",
+       "Create a second Microsoft-hosted pool for project B; each pool gets its own parallel jobs",
+       "Parallel jobs are shared by the whole organization and can't be reserved for a project; buy more, or move the project to its own organization",
+       "Enable batching on project A's CI trigger so it never uses more than one parallel job"
+     ], answer:2,
+     hint:`Where are parallel jobs configured, and can they be split?`,
+     why:`Parallel jobs are an <b>organization-level</b> resource shared by every project. You can't partition them by project or pool. You can add capacity, or separate the work into another organization with its own parallel jobs. Batching reduces how many runs start, but it doesn't reserve anything.`},
+    {id:"co2", type:"fill", title:"The free grants",
+     q:`Fill in the Azure Pipelines free grants for private projects.`,
+     tpl:`Microsoft-hosted free tier: 1 parallel job, each job up to [[0]] minutes, at most [[1]] minutes per month.<br>
+A paid Microsoft-hosted parallel job allows up to [[2]] minutes per job, with no monthly cap.<br>
+Self-hosted free tier: 1 parallel job plus 1 for each active [[3]] subscriber in the organization.<br>
+To get the Microsoft-hosted free grant, link the organization to an [[4]] subscription (set up billing).`,
+     blanks:[["60"],["1800","1,800"],["360"],["Visual Studio Enterprise","VS Enterprise"],["Azure"]],
+     hint:`One hour, 30 hours a month, six hours.`,
+     why:`Free Microsoft-hosted: 60 minutes per job and 1,800 minutes (30 hours) per month. Paid: 360 minutes per job, no monthly cap. Self-hosted: 1 free job plus one per Visual Studio Enterprise subscriber. New organizations turn on the Microsoft-hosted free grant by linking an Azure subscription.`},
+    {id:"co3", type:"mc", title:"Big machines, pay per minute",
+     q:`A team on Azure Pipelines needs <b>16-core Linux</b> machines for a nightly build of about 20 minutes. They don't want to manage any infrastructure or Azure resources, and want to pay only for the minutes they use. What fits best?`,
+     options:[
+       "Buy more Microsoft-hosted parallel jobs",
+       "GitHub-hosted agents (pay-as-you-go) with a 16-core image label",
+       "A scale set agent pool with Standard_D16 VMs",
+       "Twenty static self-hosted VMs"
+     ], answer:1,
+     hint:`Microsoft-hosted machines can't get bigger, and the scale set lives in your subscription.`,
+     why:`The <b>GitHub-hosted Agents</b> pool in Azure Pipelines offers bigger machines (for example <code>ubuntu-24.04-16-core</code>) billed per minute, with nothing to manage. Parallel jobs don't change the machine size, and scale sets or VMs are resources you run yourself.`},
+    {id:"co4", type:"multi", title:"What consumes a parallel job?",
+     q:`Which of these consume a parallel job while they're happening? <i>Select all that apply.</i>`,
+     options:[
+       "A CI job running on a Microsoft-hosted agent",
+       "A YAML deployment job running on a self-hosted agent",
+       "A stage waiting for an approval on its environment",
+       "An agentless (server) job, such as a Delay or ManualValidation task",
+       "A classic release deploying to a deployment group"
+     ], answer:[0,1],
+     hint:`Only work that is actually running on an agent from a pool counts.`,
+     why:`Jobs running on Microsoft-hosted agents use Microsoft-hosted parallel jobs, and jobs on self-hosted agents use self-hosted ones. Waiting for approvals, server (agentless) jobs and deployment-group releases don't consume a parallel job.`},
+    {id:"co5", type:"match", title:"GitHub Actions billing",
+     q:`How is each kind of GitHub Actions usage billed?`,
+     choices:["Free","Included usage, then per minute","Billed per minute"],
+     rows:[
+       ["Standard GitHub-hosted runner in a public repository","Free"],
+       ["Self-hosted runner in a private repository","Free"],
+       ["Standard Linux runner in a private repository","Included usage, then per minute"],
+       ["Larger runner in a public repository","Billed per minute"]
+     ],
+     hint:`Your own hardware costs GitHub nothing. Larger runners are always billed.`,
+     why:`Standard runners are free for public repositories. Self-hosted runners are free and don't touch the included usage. Private repositories use the plan's included usage first and then pay per minute. Larger runners are billed per minute even in public repositories.`}
+  ]
+},
+/* ================================================================ 8 */
+{
+  group:"Operate it",
+  title:"Connectivity",
+  tag:"private networks · on-premises · firewalls · proxies",
+  intro:`Agents and runners always <b>call out</b> to the service (HTTPS 443). Connectivity questions come down to two things: can the machine reach Azure DevOps or GitHub, and can it reach the <b>targets</b> it builds against or deploys to? Hosted machines only reach what's on the public internet.`,
+  sections:[
+    {h:"Reaching private and on-premises targets", lang:"text", code:`Microsoft-hosted / GitHub-hosted ──public internet──▶ target must be public (or allowlist)
+Self-hosted agent/runner inside the network ──▶ private targets  (only outbound 443 to the service)
+Managed DevOps Pool / scale set agents in your VNet ──▶ private Azure resources, on-prem via VPN/ER
+GitHub larger runners with Azure private networking ──▶ resources in your VNet
+Environment VM resources / deployment groups: agent on each target, outbound only`},
+    {h:"Allowlisting hosted IPs (and why to avoid it)", after:`<ul class="tips">
+<li><b>Microsoft-hosted</b>: IP ranges come from the weekly Azure IP ranges file, under <code>AzureCloud.&lt;region&gt;</code>. Allow <b>every region in your organization's geography</b> and refresh the list weekly. Microsoft-hosted agents can't be described with service tags. macOS agents use GitHub's ranges instead.</li>
+<li><b>GitHub-hosted</b>: ranges come from the <code>actions</code> key of <code>GET /meta</code>. They're shared and change often, and GitHub advises against allowlisting them. Use larger runners with <b>static IPs</b> or self-hosted runners.</li>
+<li>Large shared ranges include other customers' machines. Prefer agents inside your network.</li>
+</ul>`},
+    {h:"Self-hosted agent behind a firewall or proxy", lang:"sh", code:`# outbound to: https://dev.azure.com, https://*.dev.azure.com, https://login.microsoftonline.com,
+#              https://management.core.windows.net, https://download.agent.dev.azure.com, https://vssps.dev.azure.com
+./config.sh --unattended --url https://dev.azure.com/contoso --auth pat --token $AZP_TOKEN --pool Default --agent agent-01 --proxyurl http://proxy.contoso.local:8080 --proxyusername svc-agent --proxypassword $PROXY_PWD
+# bypass list: regexes in a .proxybypass file in the agent folder
+# corporate TLS inspection: --sslcacert <ca-file>`,
+     after:`<p>The agent passes proxy settings to tasks that use the task library. Tools such as <code>curl</code> or <code>dotnet</code> may also need <code>http_proxy</code> and <code>https_proxy</code> environment variables. GitHub runners read the standard <code>https_proxy</code>, <code>http_proxy</code> and <code>no_proxy</code> environment variables.</p>`}
+  ],
+  tip:`"Deploy to a server in a locked-down datacenter that only allows outbound traffic" → <b>self-hosted agent or environment VM resource inside the datacenter</b>. Microsoft-hosted agents can't use VPN or ExpressRoute and can't be allowlisted with service tags.`,
+  exercises:[
+    {id:"cn1", type:"mc", title:"Deploy into the datacenter",
+     q:`A pipeline must deploy a database schema to a SQL Server in the on-premises datacenter. The datacenter allows <b>outbound</b> internet traffic only; nothing may come in from the internet. Builds stay on Microsoft-hosted agents. How do you do the deployment?`,
+     options:[
+       "Allowlist the Azure IP ranges for your geography on the datacenter firewall",
+       "Run the deployment job on a self-hosted agent inside the datacenter; it only needs outbound HTTPS 443",
+       "Connect the Microsoft-hosted agents to the datacenter over a site-to-site VPN",
+       "Use the ubuntu-latest image, which supports ExpressRoute"
+     ], answer:1,
+     hint:`Which machine can reach the SQL Server without any inbound rule?`,
+     why:`A self-hosted agent (or an environment VM resource agent) inside the datacenter can reach the SQL Server locally and only connects out to Azure DevOps over 443. Allowlisting would need inbound rules, and Microsoft-hosted agents can't use VPN or ExpressRoute at all.`},
+    {id:"cn2", type:"text", lang:"sh", title:"Register through a proxy",
+     q:`Register a Linux agent unattended:
+      <ul class="tips">
+        <li>organization <code>https://dev.azure.com/contoso</code>, PAT in <code>$AZP_TOKEN</code>, pool <code>Default</code>, agent name <code>agent-01</code></li>
+        <li>all traffic goes through the proxy <code>http://proxy.contoso.local:8080</code> with user <code>svc-agent</code> and the password in <code>$PROXY_PWD</code></li>
+      </ul>`,
+     starter:``,
+     checks:[
+       {l:"config.sh --unattended with the organization URL", t:a => { const c = cmd(a, AP_CFG); return flag(c, "unattended") && flag(c, "url", /^https:\/\/dev\.azure\.com\/contoso\/?$/i); }},
+       {l:"--auth pat with a --token", t:a => { const c = cmd(a, AP_CFG); return flag(c, "auth", /^pat$/i) && flag(c, "token", /\S/); }},
+       {l:"--pool Default and --agent agent-01", t:a => { const c = cmd(a, AP_CFG); return flag(c, "pool", /^default$/i) && flag(c, "agent", /^agent-01$/i); }},
+       {l:"--proxyurl http://proxy.contoso.local:8080", t:a => flag(cmd(a, AP_CFG), "proxyurl", /^http:\/\/proxy\.contoso\.local:8080\/?$/i)},
+       {l:"--proxyusername svc-agent and --proxypassword", t:a => { const c = cmd(a, AP_CFG); return flag(c, "proxyusername", /^svc-agent$/i) && flag(c, "proxypassword", /\S/); }}
+     ],
+     hint:`The three proxy flags all start with <code>--proxy</code>: url, username, password.`,
+     solution:`./config.sh --unattended --url https://dev.azure.com/contoso --auth pat --token $AZP_TOKEN --pool Default --agent agent-01 --proxyurl http://proxy.contoso.local:8080 --proxyusername svc-agent --proxypassword $PROXY_PWD`,
+     why:`<code>--proxyurl</code>, <code>--proxyusername</code> and <code>--proxypassword</code> are stored in the agent's <code>.proxy</code> configuration (credentials encrypted). The agent uses them for its own traffic, checkout and artifact downloads, and passes them on to tasks.`},
+    {id:"cn3", type:"mc", title:"Allowlisting Microsoft-hosted agents",
+     q:`Your organization is in West Europe. A partner's firewall must allow your <b>Microsoft-hosted</b> agents. What's the correct (if not ideal) approach?`,
+     options:[
+       "Allow the AzureDevOps service tag",
+       "Allow only the AzureCloud.westeurope range",
+       "Ask Microsoft for the static IP address of your hosted agents",
+       "Allow the AzureCloud.<region> ranges of every region in the Europe geography from the weekly file, and update them weekly"
+     ], answer:3,
+     hint:`Hosted agents can run in any region of your geography, and the ranges change.`,
+     why:`Hosted agents can run in any region of the organization's geography, so you need the <code>AzureCloud.&lt;region&gt;</code> ranges of <b>all</b> those regions from the weekly file, kept up to date. Microsoft-hosted agents can't be described with service tags and have no static IPs. The better fix is usually a self-hosted agent or Managed DevOps Pool on a known network.`},
+    {id:"cn4", type:"mc", title:"GitHub Actions into a private VNet",
+     q:`GitHub Actions workflows must deploy to Azure resources that only accept traffic from a private virtual network. You want GitHub to manage the runner machines. What do you use?`,
+     options:[
+       "Allowlist all actions IP ranges from the meta API on the resources' firewalls",
+       "macos-latest runners, because they run inside Azure",
+       "GitHub-hosted larger runners with Azure private networking in your VNet",
+       "Add the AzureCloud service tag to the private endpoint"
+     ], answer:2,
+     hint:`One GitHub-managed option puts the runner's network interface into your Azure VNet.`,
+     why:`With <b>Azure private networking</b>, GitHub-hosted (larger) Linux and Windows runners get network interfaces in a subnet of your VNet, so they can reach private endpoints while GitHub still manages the VMs. Allowlisting public ranges doesn't help with resources that only accept private traffic. Self-hosted runners in the VNet would also work, but you'd manage them.`}
+  ]
+},
+/* ================================================================ 9 */
+{
+  group:"Operate it",
+  title:"Maintainability",
+  tag:"agent updates · images · tool installers · tool cache",
+  intro:`A self-hosted fleet drifts: tools get installed by hand, agents fall behind, disks fill up. Maintainable designs treat agent images as <b>code</b>, prefer <b>disposable</b> agents, let agents <b>update themselves</b> and pin tool versions <b>in the pipeline</b>.`,
+  sections:[
+    {h:"Keeping agents and runners current", after:`<ul class="tips">
+<li><b>Azure Pipelines agent</b>: updates itself when a task needs a newer agent version. <b>Update all agents</b> on the pool queues updates, which run after current jobs finish. A new <i>major</i> version or interactive agents may need a manual update. Azure DevOps Server can serve agent packages from a local folder.</li>
+<li><b>GitHub runner</b>: updates itself by default. With <code>--disableupdate</code> you have to update it yourself, or jobs stop being assigned to it.</li>
+<li><b>Elastic pools</b> (Managed DevOps Pools, scale set agents) install the current agent on every new VM.</li>
+</ul>`},
+    {h:"Images as code", p:`Microsoft-hosted and GitHub-hosted images are built from the open-source <b>actions/runner-images</b> repository (Packer templates and install scripts). Microsoft can't hand you the images themselves, but you can build your own:`,
+     lang:"text", code:`Packer template (based on runner-images or your own) ──▶ generalized image
+   ──▶ Azure Compute Gallery (versioned, replicated)
+   ──▶ scale set (az vmss update … imageReference) or Managed DevOps Pool image
+Managed DevOps Pools with Azure Pipelines images can pin a version:
+   "wellKnownImageName": "windows-2022/20250427.1.0"`,
+     after:`<p>Hosted images update about every week, and <code>-latest</code> labels move to new OS versions with announcements and brownouts. Pin explicit labels for predictable builds and test the next image early.</p>`},
+    {h:"Tool installers and the tool cache", lang:"yaml", code:`steps:
+- task: UseDotNet@2          # .NET SDK
+  inputs:
+    packageType: sdk
+    version: 8.x
+- task: UseNode@1            # Node.js
+  inputs:
+    version: 20.x
+- task: UsePythonVersion@0   # Python
+  inputs:
+    versionSpec: '3.12'`,
+     after:`<p>Downloaded tools go into the agent's <b>tool cache</b>, <code>$(Agent.ToolsDirectory)</code> (environment variable <code>AGENT_TOOLSDIRECTORY</code>). On a persistent self-hosted agent, the next job reuses them. GitHub Actions does the same with <code>actions/setup-dotnet</code>, <code>setup-node</code>, <code>setup-python</code> and <code>setup-java</code>, using <code>RUNNER_TOOL_CACHE</code>. On persistent agents, add <code>workspace: clean: all</code> to a job to start from an empty work folder.</p>`}
+  ],
+  tip:`"Pipelines need different tool versions" → <b>tool installer tasks / setup actions</b>, not hand-installed software. "Reduce drift and the risk of compromise" → <b>ephemeral / stateless agents</b> built from <b>versioned images</b>. "A hosted image change broke the build" → pin a specific image label; you can't roll back hosted images.`,
+  exercises:[
+    {id:"mt1", type:"text", lang:"yaml", title:"Pin the tool versions",
+     q:`A job on a Microsoft-hosted Ubuntu agent needs the <b>.NET 8 SDK</b> and <b>Node.js 20</b>, whatever the image has preinstalled. Write the steps:
+      <ul class="tips">
+        <li><code>UseDotNet@2</code> installing SDK version <code>8.x</code></li>
+        <li><code>UseNode@1</code> installing version <code>20.x</code></li>
+        <li>then a script <code>dotnet build</code> and a script <code>npm ci</code></li>
+      </ul>The installers must run <b>before</b> the scripts that use them.`,
+     starter:`pool:
+  vmImage: ubuntu-latest
+steps:
+`,
+     checks:[
+       {l:"Runs on a Microsoft-hosted Ubuntu image", t:a => a.h("**pool.vmImage", /^ubuntu-/i)},
+       {l:"UseDotNet@2 with version 8.x", t:a => a.item("steps",{task:/^UseDotNet@2$/i,"inputs.version":/^8(\.[x\d]+)*$/i})},
+       {l:"UseNode@1 with version 20.x", t:a => a.item("steps",{task:/^UseNode@1$/i,"inputs.version":/^20(\.[x\d]+)*$/i})},
+       {l:"A script runs dotnet build after UseDotNet@2", t:a => { const s = a.first("steps[].script", /dotnet\s+build/); return isFinite(s) && s > a.first("steps[].task", /^UseDotNet@2$/i); }},
+       {l:"A script runs npm ci after UseNode@1", t:a => { const s = a.first("steps[].script", /npm\s+ci/); return isFinite(s) && s > a.first("steps[].task", /^UseNode@1$/i); }}
+     ],
+     hint:`Each task is a list item <code>- task: Name@major</code> with an <code>inputs:</code> block. Put both installers at the top of <code>steps</code>.`,
+     solution:`pool:
+  vmImage: ubuntu-latest
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: sdk
+    version: 8.x
+- task: UseNode@1
+  inputs:
+    version: 20.x
+- script: dotnet build
+- script: npm ci`,
+     why:`Tool installer tasks download the requested version (or take it from the tool cache) and put it first on the PATH for the rest of the job. The pipeline then declares its own toolchain, so image updates or a different agent can't silently change the build.`},
+    {id:"mt2", type:"mc", title:"windows-latest moved",
+     q:`Microsoft moved <code>windows-latest</code> to a newer image and your build broke because a preinstalled tool changed. You want predictable builds and controlled upgrades. What do you do?`,
+     options:[
+       "Roll the Azure Pipelines pool back to the previous image version",
+       "Pin vmImage to an explicit label (e.g. windows-2022) and test the new image in a separate run before switching",
+       "Open a support ticket to keep the old image for your organization",
+       "Switch to windows-2019, which no longer changes"
+     ], answer:1,
+     hint:`Hosted images can't be rolled back, and one of these images is retired.`,
+     why:`<code>-latest</code> labels move on purpose. Pinning an explicit label gives you a stable target, and a separate run on the new image lets you upgrade when you're ready. Hosted images can't be rolled back, and <code>windows-2019</code> was retired at the end of 2025.`},
+    {id:"mt3", type:"multi", title:"A maintainable self-hosted fleet",
+     q:`Which practices make a self-hosted agent fleet easier to maintain? <i>Select all that apply.</i>`,
+     options:[
+       "Build agent images as code (for example Packer templates based on actions/runner-images) and publish them to Azure Compute Gallery",
+       "Use stateless or ephemeral agents so that every job starts from the known image",
+       "Let agents update themselves, and use Update all agents when a new major version is released",
+       "RDP into each agent to install tools by hand whenever a pipeline needs one",
+       "Disable agent updates permanently to avoid surprises",
+       "Use tool installer tasks or setup actions to pin tool versions in each pipeline"
+     ], answer:[0,1,2,5],
+     hint:`Look for repeatable and automated. Rule out manual and frozen.`,
+     why:`Versioned images, disposable agents, automatic agent updates and pipeline-declared tool versions all remove drift. Hand-installed tools can't be reproduced, and frozen agents fall out of support. (GitHub, for example, stops assigning jobs to runners that are too old.)`},
+    {id:"mt4", type:"lines", title:"Fix the runbook", prose:true,
+     q:`Click the <b>two</b> statements in this agent-operations runbook that are wrong.`,
+     code:[
+       "Self-hosted agents update themselves when a task needs a newer agent version.",
+       "After we install new software on an agent, its capability shows up immediately; no restart is needed.",
+       "Tool installer tasks such as UseNode@1 put downloaded tools in the agent tool cache, $(Agent.ToolsDirectory).",
+       "If a Microsoft-hosted image update breaks a build, we roll the pool back to last week's image.",
+       "Our scale set image is rebuilt monthly from Packer templates, and the scale set is then updated to the new image.",
+       "Jobs that run on our persistent self-hosted agents set workspace: clean: all."
+     ], answer:[1,3],
+     hint:`One is about when capabilities are read; the other is about what you control on hosted agents.`,
+     why:`Capabilities are collected when the agent <b>starts</b>, so restart it after installing software. Microsoft-hosted images can't be rolled back; pin an explicit image label instead. The other statements describe good practice.`}
+  ]
+},
+/* ================================================================ 10 */
+{
+  group:"Integrate & combine",
+  title:"GitHub repositories in Azure Pipelines",
+  tag:"GitHub App · service connections · PR validation · status checks · forks",
+  intro:`Azure Pipelines can build any GitHub repository. The design decisions are how it <b>authenticates</b> to GitHub, how <b>pull request validation</b> reports back, and how you keep <b>fork</b> pull requests from stealing secrets.`,
+  sections:[
+    {h:"Authentication options", after:`<div class="tablewrap"><table class="ref">
+<tr><th>Type</th><th>Runs as</th><th>GitHub Checks</th><th>Notes</th></tr>
+<tr><td><b>Azure Pipelines GitHub App</b> (recommended)</td><td>Azure Pipelines identity</td><td>Yes</td><td>Installed on the account or organization for selected repositories. Posts check runs per run and per job, with test and coverage details.</td></tr>
+<tr><td><b>OAuth</b></td><td>Your personal GitHub identity</td><td>No (basic statuses)</td><td>Simplest for repositories in a personal account; stops working if your access ends</td></tr>
+<tr><td><b>Personal access token</b></td><td>Your personal GitHub identity</td><td>No (basic statuses)</td><td>Like OAuth, but you choose the scopes</td></tr>
+</table></div>
+<p>OAuth and PAT connections are stored as <b>GitHub service connections</b>. GitHub users aren't mapped to Azure DevOps users automatically, so add them to the organization if they need access to pipelines.</p>`},
+    {h:"Triggers for a GitHub repository", lang:"yaml", code:`trigger:              # CI on pushes
+  branches:
+    include: [main, release/*]
+pr:                   # PR validation (if omitted: every PR, all target branches)
+  branches:
+    include: [main]   # 'pr: none' turns PR validation off`},
+    {h:"Make it a required check", after:`<ol class="tips">
+<li>Run the pipeline once so GitHub knows its check name.</li>
+<li>In GitHub, add a branch protection rule or ruleset on <code>main</code> and choose the pipeline under <b>required status checks</b>.</li>
+<li>Pull requests can't merge until the pipeline's check passes. With the GitHub App, people can re-run failed checks from GitHub.</li>
+</ol>`},
+    {h:"Pull requests from forks", after:`<ul class="tips">
+<li><b>Build pull requests from forks of this repository</b>: on by default.</li>
+<li><b>Make secrets available to builds of forks</b>: <b>off</b> by default. Secrets include the GitHub token, service connections, secure files and secret variables.</li>
+<li><b>Make fork builds have the same permissions as regular builds</b>: off by default. Fork builds get a restricted token.</li>
+<li><b>Require a team member's comment before building a pull request</b>: on all PRs, or only on PRs from non-team members. A collaborator with write access then comments <code>/AzurePipelines run</code> (or <code>/azp run [pipeline-name]</code>).</li>
+<li>At organization or project level, <b>Securely build pull requests from forked repositories</b> enforces this for every pipeline.</li>
+</ul>`}
+  ],
+  tip:`"Show test and coverage results in GitHub" or "don't depend on one person's account" → <b>GitHub App</b>. "Block merges until the pipeline passes" → required status check in GitHub branch protection. "Public repo, PRs from forks" → keep secrets off for fork builds, require a team member's comment, and avoid self-hosted agents.`,
+  exercises:[
+    {id:"gh1", type:"match", title:"Which connection type?",
+     q:`Match each statement to the GitHub authentication type it describes.`,
+     choices:["GitHub App","OAuth","Personal access token"],
+     rows:[
+       ["Recommended; builds run under the Azure Pipelines identity","GitHub App"],
+       ["Posts GitHub Checks with test and code coverage details","GitHub App"],
+       ["Simplest for a repository in your personal account; status updates as your own identity","OAuth"],
+       ["Like OAuth, but you choose exactly which scopes Azure Pipelines gets","Personal access token"],
+       ["Replies to /azp comment commands in the pull request discussion","GitHub App"]
+     ],
+     hint:`Only one type isn't tied to your personal GitHub identity.`,
+     why:`The <b>GitHub App</b> uses the Azure Pipelines identity, supports the Checks API and answers comment commands in the PR. <b>OAuth</b> and <b>PAT</b> both act as you and post basic statuses; a PAT lets you choose the scopes.`},
+    {id:"gh2", type:"multi", title:"Safe builds for fork pull requests",
+     q:`A <b>public</b> GitHub repository is built by Azure Pipelines, and outside contributors open pull requests from forks. Which choices keep this safe? <i>Select all that apply.</i>`,
+     options:[
+       "Leave Make secrets available to builds of forks turned off",
+       "Turn on Require a team member's comment before building a pull request (at least for non-team members)",
+       "Turn on Make fork builds have the same permissions as regular builds",
+       "Run fork PR builds on Microsoft-hosted agents, not on self-hosted agents in the corporate network",
+       "Put the deployment credentials in a plain (non-secret) variable so fork builds can deploy previews"
+     ], answer:[0,1,3],
+     hint:`Assume the pull request contains malicious code. What could it reach?`,
+     why:`Fork PR code is untrusted. Keep secrets out of fork builds, keep the restricted token, let a team member review before a build runs (<code>/azp run</code>), and run it on disposable Microsoft-hosted agents rather than machines inside your network. A plain variable would hand credentials to anyone who opens a PR.`},
+    {id:"gh3", type:"order", title:"Block merges until the pipeline passes",
+     q:`Order the steps to make an Azure Pipelines run a required check for pull requests into <code>main</code> on GitHub.`,
+     items:[
+       "Install the Azure Pipelines GitHub App and create the YAML pipeline for the repository",
+       "Let the pipeline run at least once so that GitHub learns its status check name",
+       "In GitHub, add a branch protection rule (or ruleset) for main",
+       "Select the pipeline under required status checks and save",
+       "Open a pull request: merging is blocked until the pipeline's check succeeds"
+     ],
+     hint:`GitHub can only offer a check as "required" after it has seen it at least once.`,
+     why:`The check name only shows up in GitHub's list after the pipeline has posted a status. Then branch protection or a ruleset makes it required, and pull requests can't be merged until the pipeline succeeds.`},
+    {id:"gh4", type:"text", lang:"yaml", title:"Triggers for a GitHub repo",
+     q:`Write <code>azure-pipelines.yml</code> for a GitHub repository:
+      <ul class="tips">
+        <li>CI runs only for pushes to <code>main</code> and <code>release/*</code></li>
+        <li>PR validation runs only for pull requests that target <code>main</code></li>
+        <li>Microsoft-hosted Ubuntu agent, one script step</li>
+      </ul>`,
+     starter:``,
+     checks:[
+       {l:"CI trigger includes main", t:a => a.h("trigger[]","main") || a.h("trigger.branches.include[]?","main")},
+       {l:"CI trigger includes release/*", t:a => a.h("trigger[]","release/*") || a.h("trigger.branches.include[]?","release/*")},
+       {l:"PR trigger includes main", t:a => a.h("pr[]","main") || a.h("pr.branches.include[]?","main")},
+       {l:"PR trigger doesn't include release/*", t:a => !a.h("pr[]","release/*") && !a.h("pr.branches.include[]?","release/*")},
+       {l:"Neither trigger is set to none", t:a => !a.h("trigger","none") && !a.h("pr","none")},
+       {l:"Ubuntu hosted agent and a script step", t:a => a.h("**pool.vmImage", /^ubuntu-/i) && a.h("**steps[].script", /\S/)}
+     ],
+     hint:`Both <code>trigger</code> and <code>pr</code> accept a short list form (<code>trigger: [main]</code>) or the long form with <code>branches: include:</code>.`,
+     solution:`trigger:
+  branches:
+    include:
+    - main
+    - release/*
+pr:
+  branches:
+    include:
+    - main
+pool:
+  vmImage: ubuntu-latest
+steps:
+- script: dotnet test`,
+     why:`For GitHub repositories, <code>trigger</code> controls CI builds on pushes and <code>pr</code> controls PR validation builds. Without a <code>pr</code> section, every pull request to any branch is validated, so listing <code>main</code> limits it to PRs into main.`}
+  ]
+},
+/* ================================================================ 11 */
+{
+  group:"Integrate & combine",
+  title:"Hybrid, containers & VM targets",
+  tag:"hybrid pipelines · deployment groups · environments · container jobs · VM templates",
+  intro:`The "complex scenarios" objective combines what you've learned so far: build in the cloud and deploy on-premises, run jobs inside containers, and reach fleets of VMs. Each part runs on the right kind of compute.`,
+  sections:[
+    {h:"Hybrid pipeline: one pipeline, several pools", lang:"yaml", code:`stages:
+- stage: Build
+  pool:
+    vmImage: ubuntu-latest           # Microsoft-hosted
+  jobs:
+  - job: Build
+    steps:
+    - script: ./build.sh
+- stage: DeployOnPrem
+  pool:
+    name: OnPrem-Deploy              # self-hosted agents inside the datacenter
+  jobs:
+  - job: Deploy
+    steps:
+    - script: ./deploy.sh`},
+    {h:"Deployment groups vs. environment VM resources", after:`<div class="tablewrap"><table class="ref">
+<tr><th></th><th>Deployment groups</th><th>Environment VM resources</th></tr>
+<tr><td>Pipeline type</td><td>Classic release pipelines</td><td>YAML deployment jobs</td></tr>
+<tr><td>Registration</td><td>Agent with <code>--deploymentGroup --deploymentGroupName … --addDeploymentGroupTags --deploymentGroupTags web</code></td><td>Registration script from Environment → Add resource → Virtual machines (tags with <code>--addvirtualmachineresourcetags</code>)</td></tr>
+<tr><td>Governance</td><td>Release pre/post-deployment approvals and gates</td><td>Approvals and checks on the <b>environment</b>, plus deployment history</td></tr>
+<tr><td>Both</td><td colspan="2">An agent on <b>each target</b> pulls work over outbound HTTPS; tags select subsets (e.g. <code>web</code>, <code>db</code>)</td></tr>
+</table></div>`,
+     lang:"yaml", code:`jobs:
+- deployment: DeployWeb
+  environment:
+    name: production
+    resourceType: VirtualMachine
+    tags: web                        # only VMs tagged "web"
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - script: ./install.sh`},
+    {h:"Container jobs", p:`<b>Azure Pipelines</b>: YAML only. The agent needs Docker (Windows or Linux agents, <b>not macOS</b>) and must not itself run inside a container. Linux images need <b>bash</b>, must be <b>glibc</b>-based (Alpine needs its own Node.js plus a label), must not define an <b>ENTRYPOINT</b>, and must be able to run the Node.js that the agent provides. Windows containers must match the host's kernel version. Private registries use a Docker registry service connection (<code>endpoint</code>).`,
+     lang:"yaml", code:`resources:
+  containers:
+  - container: build
+    image: contosoacr.azurecr.io/build/dotnet:8.0
+    endpoint: contoso-acr            # Docker registry service connection
+jobs:
+- job: Build
+  pool:
+    vmImage: ubuntu-latest
+  container: build
+  steps:
+  - script: dotnet --info`,
+     after:`<p><b>GitHub Actions</b>: <code>jobs.&lt;id&gt;.container</code> (with <code>image</code>, <code>credentials</code>, <code>env</code>, <code>ports</code>, <code>volumes</code>, <code>options</code>) and <code>services:</code>. Job containers and service containers need a <b>Linux</b> runner: GitHub-hosted Ubuntu, or a self-hosted Linux machine with Docker.</p>`},
+    {h:"VM templates and images", p:`Treat agent and target machines as code. <b>Bicep/ARM templates</b> create the agent VMs, scale set or Managed DevOps Pool. <b>Packer</b> builds golden images, and <b>Azure Compute Gallery</b> versions and replicates them. The pipeline that builds an image is often itself a hybrid pipeline: it runs Packer on a hosted agent and publishes to the gallery.`}
+  ],
+  tip:`"YAML pipeline must deploy to a group of on-premises VMs with approvals" → <b>environment with VM resources</b> and a <code>deployment</code> job (deployment groups are classic only). Container job failing on macOS or on a self-hosted Windows runner in GitHub → wrong runner OS.`,
+  exercises:[
+    {id:"cx1", type:"text", lang:"yaml", title:"Container job from a private registry",
+     q:`Write a pipeline that runs job <code>Build</code> inside the image <code>contosoacr.azurecr.io/build/dotnet:8.0</code>, pulled through the Docker registry service connection <code>contoso-acr</code>:
+      <ul class="tips">
+        <li>declare it as container resource <code>build</code></li>
+        <li>the job runs on a Microsoft-hosted Ubuntu agent and uses that container</li>
+        <li>one script step: <code>dotnet --info</code></li>
+      </ul>`,
+     starter:`resources:
+`,
+     checks:[
+       {l:"Container resource build with the ACR image", t:a => a.item("resources.containers",{container:/^build$/i,image:/^contosoacr\.azurecr\.io\/build\/dotnet:8\.0$/i})},
+       {l:"…using endpoint contoso-acr", t:a => a.item("resources.containers",{container:/^build$/i,endpoint:/^contoso-acr$/i})},
+       {l:"Job Build references container build", t:a => a.item("jobs",{job:/^build$/i,container:/^build$/i})},
+       {l:"Runs on a Microsoft-hosted Ubuntu image (not macOS)", t:a => a.h("**pool.vmImage", /^ubuntu-/i) && !a.h("**pool.vmImage", /mac/i)},
+       {l:"Script step dotnet --info", t:a => a.h("**steps[].script", /dotnet\s+--info/)}
+     ],
+     hint:`<code>resources.containers</code> is a list of items with <code>container</code>, <code>image</code> and <code>endpoint</code>. The job then says <code>container: build</code>.`,
+     solution:`resources:
+  containers:
+  - container: build
+    image: contosoacr.azurecr.io/build/dotnet:8.0
+    endpoint: contoso-acr
+jobs:
+- job: Build
+  pool:
+    vmImage: ubuntu-latest
+  container: build
+  steps:
+  - script: dotnet --info`,
+     why:`The agent pulls the image with the credentials from the <code>contoso-acr</code> service connection, starts the container and runs every step inside it. The build environment is then defined by an image you control, while the hosted agent provides Docker.`},
+    {id:"cx2", type:"text", lang:"yaml", title:"Deploy to tagged VMs",
+     q:`Your <code>production</code> environment has VM resources tagged <code>web</code> and <code>db</code>. Write a YAML <b>deployment job</b> named <code>DeployWeb</code> that deploys only to the <code>web</code> VMs with the <code>runOnce</code> strategy and runs <code>./install.sh</code>.`,
+     starter:`jobs:
+`,
+     checks:[
+       {l:"A deployment job named DeployWeb", t:a => a.item("jobs",{deployment:/^DeployWeb$/i})},
+       {l:"environment.name production", t:a => a.item("jobs",{deployment:/^DeployWeb$/i,"environment.name":/^production$/i})},
+       {l:"resourceType VirtualMachine", t:a => a.item("jobs",{deployment:/^DeployWeb$/i,"environment.resourceType":/^VirtualMachine$/i})},
+       {l:"tags web", t:a => a.item("jobs",{deployment:/^DeployWeb$/i,"environment.tags":/^web$/i})},
+       {l:"strategy.runOnce.deploy.steps runs ./install.sh", t:a => a.item("jobs",{deployment:/^DeployWeb$/i,"strategy.runOnce.deploy.steps[].script":/\.\/install\.sh/})}
+     ],
+     hint:`Use <code>- deployment:</code> rather than <code>- job:</code>. <code>environment</code> takes <code>name</code>, <code>resourceType</code> and <code>tags</code>, and the steps go under <code>strategy: runOnce: deploy:</code>.`,
+     solution:`jobs:
+- deployment: DeployWeb
+  environment:
+    name: production
+    resourceType: VirtualMachine
+    tags: web
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+        - script: ./install.sh`,
+     why:`A deployment job targeting <code>resourceType: VirtualMachine</code> runs on the agents installed on the environment's VMs, filtered by <code>tags</code>. Approvals and checks on the <code>production</code> environment apply automatically, and the environment records which run deployed what. This is the YAML replacement for deployment groups.`},
+    {id:"cx3", type:"multi", title:"Will this container job work?",
+     q:`Which conditions must be true for an Azure Pipelines <b>Linux</b> container job to work? <i>Select all that apply.</i>`,
+     options:[
+       "The image has bash installed",
+       "The image is glibc-based, or extra setup is done (Alpine needs its own Node.js and a label)",
+       "The image doesn't define an ENTRYPOINT",
+       "The job runs on a macOS agent",
+       "The pipeline is a classic build pipeline",
+       "Docker is installed on the agent, and the agent isn't itself running inside a container"
+     ], answer:[0,1,2,5],
+     hint:`Two options name platforms that don't support container jobs at all.`,
+     why:`The agent runs steps with <code>docker exec</code> and its own Node.js, so the image needs bash, glibc compatibility (or the Alpine workaround) and no ENTRYPOINT. The agent host needs Docker and can't be a container itself. macOS agents and classic pipelines don't support container jobs.`},
+    {id:"cx4", type:"mc", title:"Container job on a Windows runner",
+     q:`A GitHub Actions job uses <code>container: node:20</code> and a <code>postgres</code> service container. It fails on the team's self-hosted <b>Windows</b> runner. What's the fix?`,
+     options:[
+       "Install Docker Desktop on the Windows runner; then Linux job containers work",
+       "Run the job on a Linux runner with Docker, either GitHub-hosted Ubuntu or a self-hosted Linux machine",
+       "Add options: --platform linux to the container",
+       "Change runs-on to windows-latest"
+     ], answer:1,
+     hint:`GitHub documents one runner OS for job and service containers.`,
+     why:`Job containers and service containers in GitHub Actions need a <b>Linux</b> runner: <code>ubuntu-*</code> GitHub-hosted runners, or self-hosted Linux runners with Docker installed. Windows (and macOS) runners can't run them.`},
+    {id:"cx5", type:"match", title:"Deployment groups or environments?",
+     q:`Match each statement to deployment groups, environment VM resources, or both.`,
+     choices:["Deployment groups","Environment VM resources","Both"],
+     rows:[
+       ["Used by classic release pipelines","Deployment groups"],
+       ["Targeted by a YAML deployment job with resourceType: VirtualMachine","Environment VM resources"],
+       ["Agent registered with --deploymentGroup --deploymentGroupName","Deployment groups"],
+       ["Approvals and checks are configured on the target instead of in the pipeline","Environment VM resources"],
+       ["An agent on each target server pulls work over outbound HTTPS, and tags select subsets of machines","Both"]
+     ],
+     hint:`One is the classic feature, the other is its YAML successor, and they share the same agent model.`,
+     why:`Deployment groups belong to classic releases and are registered with the <code>--deploymentGroup</code> flags. Environment VM resources are used by YAML deployment jobs and carry approvals and checks on the environment. Both put an agent on every target that only connects outbound, and both use tags to pick machines.`}
+  ]
+},
+/* ================================================================ 12 */
+{
+  group:"Exam practice",
+  title:"Mixed scenarios",
+  tag:"exam-style · everything combined",
+  intro:`Exam-style case questions that mix platform choice, agent type, cost and connectivity. Read for the <b>deciding constraint</b>: on-premises only, private network, bigger machines, least operations, clean machine for each job, or cost.`,
+  sections:[
+    {h:"Decision cheat sheet", lang:"text", code:`Code on GitHub, no Azure DevOps yet ............ GitHub Actions
+Azure DevOps Server / TFVC / classic releases ... Azure Pipelines
+Standard build, no special needs ................ Microsoft-hosted / GitHub-hosted
+Bigger machines, Azure Pipelines, least ops ..... Managed DevOps Pools (or per-minute GitHub-hosted agents)
+Private VNet, Azure Pipelines .................... Managed DevOps Pools with VNet injection / self-hosted
+Private VNet, GitHub Actions ..................... larger runners + Azure private networking / self-hosted
+Kubernetes already, autoscale GitHub runners ..... Actions Runner Controller
+Clean machine per job, self-hosted ............... ephemeral / JIT runners, stateless pools
+On-prem VMs as YAML deploy targets ............... environment VM resources
+Free self-hosted concurrency ..................... 1 + Visual Studio Enterprise subscribers`}
+  ],
+  tip:`When two answers both "work", the exam usually wants the one with <b>least administrative effort</b> that still meets <b>every</b> constraint, and Microsoft's currently recommended service (for example Managed DevOps Pools over scale set agents).`,
+  exercises:[
+    {id:"sc1", type:"mc", title:"Air-gapped Azure DevOps Server",
+     q:`Fabrikam runs <b>Azure DevOps Server</b> in an isolated datacenter with no internet access. Which agents can run its pipelines?`,
+     options:[
+       "Microsoft-hosted agents",
+       "Managed DevOps Pools",
+       "Self-hosted agents installed in the datacenter",
+       "GitHub-hosted agents (pay-as-you-go)"
+     ], answer:2,
+     hint:`Which options need Azure DevOps Services in the cloud?`,
+     why:`Microsoft-hosted agents, Managed DevOps Pools and the per-minute GitHub-hosted agents only exist for Azure DevOps <b>Services</b>. Azure DevOps Server uses <b>self-hosted</b> agents, and there's no charge for self-hosted concurrency on Server.`},
+    {id:"sc2", type:"mc", title:"Big builds, private feed, office hours",
+     q:`Contoso uses Azure Pipelines. Builds need 32 GB RAM, must reach a package feed that is only reachable inside an Azure VNet, and benefit from warm caches. Load peaks 08:00–18:00 on weekdays. The platform team wants as little to operate as possible. What do you recommend?`,
+     options:[
+       "Buy more Microsoft-hosted parallel jobs",
+       "A Managed DevOps Pool with VNet injection, stateful agents with a grace period, and a weekday standby schedule",
+       "A scale set agent pool with one fixed standby count",
+       "Twenty always-on self-hosted VMs in the VNet"
+     ], answer:1,
+     hint:`You need bigger VMs, VNet access, caching and scheduling, with the least ops work.`,
+     why:`Managed DevOps Pools covers all of it: any VM size, injection into your VNet, stateful agents that keep caches, and standby schedules, with the VMs run by Microsoft. Microsoft-hosted agents can't be enlarged or put into a VNet. A scale set pool or static VMs would work, but with more operations work and no schedules.`},
+    {id:"sc3", type:"mc", title:"Kubernetes shop",
+     q:`An organization already runs AKS clusters and wants self-hosted GitHub Actions runners that <b>autoscale</b> with the job queue, <b>scale to zero</b> when idle and use a <b>new runner for every job</b>. What should it deploy?`,
+     options:[
+       "Persistent runners on AKS nodes registered with --disableupdate",
+       "Actions Runner Controller with a runner scale set",
+       "A Managed DevOps Pool",
+       "Larger runners with static IPs"
+     ], answer:1,
+     hint:`Which option is Kubernetes-native and built for GitHub Actions?`,
+     why:`ARC runner scale sets run ephemeral runner pods (JIT-configured) that the listener scales from <code>minRunners</code> (0) up to <code>maxRunners</code> as jobs arrive. Managed DevOps Pools is for Azure Pipelines, and larger runners don't run on your cluster.`},
+    {id:"sc4", type:"mc", title:"Clean machine, no tokens lying around",
+     q:`A regulated team requires every GitHub Actions job to run on a <b>fresh self-hosted VM inside the corporate network</b>, and no long-lived registration credentials may be stored on runner machines. What do you implement?`,
+     options:[
+       "One persistent runner per team with workspace cleanup between jobs",
+       "An autoscaler that creates a VM per job and starts the runner with a JIT configuration from the generate-jitconfig API",
+       "GitHub-hosted standard runners",
+       "Runners registered with a PAT stored in the VM image"
+     ], answer:1,
+     hint:`One option gives a single-use runner without config.sh or a stored token.`,
+     why:`Just-in-time runners are single-use (ephemeral) and are started with an encoded configuration generated per runner, so the machine never holds a reusable credential. A fresh VM per job gives the clean environment. Persistent runners keep state, standard hosted runners aren't inside the network, and a PAT in the image is a long-lived secret.`},
+    {id:"sc5", type:"mc", title:"Count the free self-hosted jobs",
+     q:`An Azure DevOps organization with only private projects has <b>three</b> active Visual Studio Enterprise subscribers as members and hasn't bought anything. How many self-hosted parallel jobs can it run at the same time?`,
+     options:["1","3","4","Unlimited, because self-hosted agents are free"], answer:2,
+     hint:`Free tier = one, plus one per subscriber.`,
+     why:`Self-hosted free tier: <b>1</b> parallel job plus <b>1 per active Visual Studio Enterprise subscriber</b> in the organization, so 1 + 3 = 4. You can register as many agents as you like, but only four jobs run at once unless you buy more.`},
+    {id:"sc6", type:"multi", title:"Hybrid release to IIS servers",
+     q:`Builds run in the cloud. A YAML pipeline must deploy to 20 on-premises IIS servers with a manual approval before production. The servers can only make outbound connections. Which <b>two</b> choices make up the design?`,
+     options:[
+       "Register each server as a virtual machine resource in a production environment, with tags",
+       "Use a YAML deployment job targeting that environment (resourceType: VirtualMachine) and set the approval on the environment",
+       "Open WinRM port 5986 from the Azure IP ranges to all servers and deploy from Microsoft-hosted agents",
+       "Connect the Microsoft-hosted agents to the datacenter over VPN",
+       "Use a deployment group from a YAML deployment job"
+     ], answer:[0,1],
+     hint:`Agents on the targets only need outbound access. Then pick the YAML-native way to address them.`,
+     why:`VM resources put an agent on every server that only connects outbound. A deployment job against the environment reaches those VMs (filtered by tags), and approvals on the environment gate production. Inbound WinRM and VPN from hosted agents break the constraints, and deployment groups are a classic-release feature.`}
+  ]
+}
+];
+
+/* ===================================================================
+   MINI YAML PARSER (same as the Pipelines lab)
+   Turns YAML into a flat list of { path, value } entries, e.g.
+     body[0].type = textarea
+   =================================================================== */
+const toStr = t => t.reduce((s, x) => x[0] === "[" ? s + x : (s ? s + "." + x : x), "");
+
+function cleanVal(v){
+  v = (v || "").trim();
+  if (v[0] === "'"){ const m = v.match(/^'((?:[^']|'')*)'/); if (m) return m[1].replace(/''/g, "'"); }
+  if (v[0] === '"'){ const m = v.match(/^"((?:[^"\\]|\\.)*)"/); if (m) return m[1]; }
+  const ci = v.search(/(^|\s)#/);
+  return (ci >= 0 ? v.slice(0, ci) : v).trim();
+}
+
+function splitFlow(inner){
+  const out = []; let cur = "", depth = 0, q = null;
+  for (const ch of inner){
+    if (q){ cur += ch; if (ch === q) q = null; continue; }
+    if (ch === "'" || ch === '"'){ q = ch; cur += ch; continue; }
+    if ("[{(".includes(ch)) depth++;
+    if ("]})".includes(ch)) depth--;
+    if (ch === "," && depth === 0){ out.push(cur); cur = ""; continue; }
+    cur += ch;
+  }
+  if (cur.trim()) out.push(cur);
+  return out.map(s => s.trim()).filter(Boolean);
+}
+
+function parseYaml(text){
+  const lines = text.replace(/\r/g, "").split("\n");
+  const entries = [], errors = [];
+  const root = {col:-1, gt:[], it:[], kids:null};
+  const stack = [root], counters = new Map();
+  const top = () => stack[stack.length - 1];
+  const add = (gt, it, value, line) => entries.push({gt, it, gen:toStr(gt), idx:toStr(it), value, line});
+  let flagged = -1;
+  const sibling = (parent, col, ln, kind) => {
+    if (parent.kind && parent.kind !== kind && flagged !== ln){
+      flagged = ln;
+      errors.push(`Line ${ln}: this ${kind === "list" ? "list item" : "key"} sits at the same level as ${kind === "list" ? "keys" : "\"- \" list items"} under the same parent. Check the indentation.`);
+    }
+    parent.kind = parent.kind || kind;
+    if (parent.kids === null) parent.kids = col;
+    else if (parent.kids !== col && flagged !== ln)
+      errors.push(`Line ${ln}: indented ${col} spaces, but its siblings use ${parent.kids}. Items at the same level must line up exactly.`);
+  };
+  let lastScalar = null;
+
+  for (let i = 0; i < lines.length; i++){
+    const raw = lines[i], ln = i + 1;
+    if (!raw.trim() || /^\s*#/.test(raw)) continue;
+    if (/^ *\t/.test(raw)){ errors.push(`Line ${ln}: a tab is used for indentation. YAML only allows spaces.`); continue; }
+    const lineCol = raw.match(/^ */)[0].length;
+    let col = lineCol, rest = raw.slice(col).replace(/\s+$/, "");
+    if (lastScalar && col > lastScalar.col && (flagged = ln))
+      errors.push(`Line ${ln}: indented under "${lastScalar.key}" (line ${lastScalar.ln}), but that key already has a value on its own line.`);
+    lastScalar = null;
+
+    let dashNode = null;
+    while (/^-(\s|$)/.test(rest)){
+      while (stack.length > 1 && (top().col > col || (top().dash && top().col === col))) stack.pop();
+      const parent = top();
+      sibling(parent, col, ln, "list");
+      const n = counters.get(parent) ?? 0; counters.set(parent, n + 1);
+      dashNode = {col, gt:[...parent.gt, "[]"], it:[...parent.it, `[${n}]`], kids:null, dash:true};
+      stack.push(dashNode);
+      const m = rest.match(/^-\s*/)[0].length;
+      col += m; rest = rest.slice(m);
+    }
+    if (!rest) continue;
+
+    const km = /^['"]/.test(rest) ? null : rest.match(/^(.+?)\s*:(?:\s+(.*))?$/);
+    if (!km){
+      if (dashNode) add(dashNode.gt, dashNode.it, cleanVal(rest), ln);
+      else errors.push(`Line ${ln}: "${rest.slice(0, 40)}" is not a "key: value" pair or a "- item". Check for a missing colon or a missing space after it.`);
+      continue;
+    }
+
+    const key = cleanVal(km[1]) || km[1];
+    while (stack.length > 1 && top().col >= col) stack.pop();
+    const parent = top();
+    sibling(parent, col, ln, "map");
+    const gt = [...parent.gt, key], it = [...parent.it, key];
+    const rawVal = (km[2] || "").trim();
+
+    if (/^[|>][-+]?\d*\s*(#.*)?$/.test(rawVal)){
+      const body = []; let j = i + 1;
+      for (; j < lines.length; j++){
+        const l = lines[j];
+        if (!l.trim()){ body.push(""); continue; }
+        if (l.match(/^ */)[0].length > lineCol) body.push(l); else break;
+      }
+      while (body.length && !body[body.length - 1].trim()) body.pop();
+      const ind = body.filter(x => x.trim()).map(x => x.match(/^ */)[0].length);
+      const min = ind.length ? Math.min(...ind) : 0;
+      if (!body.length) errors.push(`Line ${ln}: "${key}: ${rawVal}" starts a multi-line block, but no indented lines follow.`);
+      add(gt, it, body.map(x => x.slice(min)).join("\n"), ln);
+      i = j - 1;
+      continue;
+    }
+
+    const quoted = /^['"]/.test(rawVal);
+    const v = cleanVal(rawVal);
+    if (v === "" && !quoted){
+      stack.push({col, gt, it, kids:null});
+      add(gt, it, "", ln);
+    } else if (!quoted && /^\[.*\]$/.test(v)){
+      add(gt, it, "", ln);
+      splitFlow(v.slice(1, -1)).forEach((x, k) => add([...gt, "[]"], [...it, `[${k}]`], cleanVal(x), ln));
+      lastScalar = {col, key, ln};
+    } else if (!quoted && /^\{.*\}$/.test(v)){
+      add(gt, it, "", ln);
+      splitFlow(v.slice(1, -1)).forEach(pair => {
+        const pm = pair.match(/^(.+?)\s*:\s*(.*)$/);
+        if (pm) add([...gt, cleanVal(pm[1])], [...it, cleanVal(pm[1])], cleanVal(pm[2]), ln);
+      });
+      lastScalar = {col, key, ln};
+    } else {
+      add(gt, it, v, ln);
+      lastScalar = {col, key, ln};
+    }
+  }
+  return {entries, errors};
+}
+
+function globRe(p){
+  if (p instanceof RegExp) return p;
+  return new RegExp("^" + p.split(/(\*\*|\*|\[\]\?)/).map(s =>
+    s === "**" ? ".*" :
+    s === "*" ? "[^.\\[\\]]*" :
+    s === "[]?" ? "(\\[\\])?" :
+    s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("") + "$", "i");
+}
+const valMatch = (v, w) => w === undefined ? true : w instanceof RegExp ? w.test(v) : String(v).toLowerCase() === String(w).toLowerCase();
+
+function makeApi(entries, src){
+  const find = (p, w) => { const re = globRe(p); return entries.filter(e => re.test(e.gen) && valMatch(e.value, w)); };
+  return {
+    src,
+    h: (p, w) => find(p, w).length > 0,
+    count: (p, w) => find(p, w).length,
+    first: (p, w) => Math.min(Infinity, ...find(p, w).map(e => e.line)),
+    item(listPath, conds){
+      const re = globRe(listPath + "[]"), groups = new Map();
+      for (const e of entries){
+        for (let n = 1; n <= e.gt.length; n++){
+          if (e.gt[n - 1] !== "[]" || !re.test(toStr(e.gt.slice(0, n)))) continue;
+          const k = toStr(e.it.slice(0, n));
+          if (!groups.has(k)) groups.set(k, []);
+          groups.get(k).push({rel:toStr(e.gt.slice(n)), value:e.value});
+        }
+      }
+      return [...groups.values()].some(list =>
+        Object.entries(conds).every(([rp, w]) => { const r = globRe(rp); return list.some(x => r.test(x.rel) && valMatch(x.value, w)); }));
+    }
+  };
+}
+
+/* ===================================================================
+   CHECKING (pure functions, no DOM: also used by the self-test)
+   =================================================================== */
+const norm = s => String(s).trim().replace(/\s+/g, " ").toLowerCase();
+const sameSet = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+
+// Returns {ok, results:[{l, ok, sub?}], marks}  (marks drive per-item coloring)
+function grade(ex, ans){
+  switch (ex.type){
+    case "mc": {
+      const ok = ans === ex.answer;
+      return {ok, results:[{l: ans === null || ans === undefined ? "Pick an answer first." : ok ? "Correct!" : "Not quite. Read the hint and try again.", ok}]};
+    }
+    case "multi": {
+      const sel = ans || [];
+      const missing = ex.answer.filter(i => !sel.includes(i)).length;
+      const extra = sel.filter(i => !ex.answer.includes(i)).length;
+      const ok = missing === 0 && extra === 0;
+      const r = [];
+      if (ok) r.push({l:"Correct! You found exactly the right options.", ok:true});
+      else {
+        r.push({l: missing ? `${missing} correct option${missing > 1 ? "s" : ""} not selected` : "All correct options selected", ok: !missing});
+        r.push({l: extra ? `${extra} selected option${extra > 1 ? "s are" : " is"} wrong` : "No wrong options selected", ok: !extra});
+      }
+      return {ok, results:r};
+    }
+    case "order": {
+      const seq = ans || [];
+      const marks = seq.map((it, pos) => it === pos);
+      const right = marks.filter(Boolean).length;
+      const ok = right === ex.items.length;
+      return {ok, marks, results:[{l: ok ? "Correct order!" : `${right}/${ex.items.length} items are in the right position.`, ok}]};
+    }
+    case "match": {
+      const sel = ans || [];
+      const marks = ex.rows.map((r, i) => sel[i] === r[1]);
+      const right = marks.filter(Boolean).length;
+      const ok = right === ex.rows.length;
+      return {ok, marks, results:[{l: ok ? "All matches correct!" : `${right}/${ex.rows.length} matches correct.`, ok}]};
+    }
+    case "fill": {
+      const vals = ans || [];
+      const marks = ex.blanks.map((acc, i) => acc.some(a => norm(a) === norm(vals[i] || "")));
+      const right = marks.filter(Boolean).length;
+      const ok = right === ex.blanks.length;
+      return {ok, marks, results:[{l: ok ? "All blanks correct!" : `${right}/${ex.blanks.length} blanks correct.`, ok}]};
+    }
+    case "lines": {
+      const sel = ans || [];
+      const missing = ex.answer.filter(i => !sel.includes(i)).length;
+      const extra = sel.filter(i => !ex.answer.includes(i)).length;
+      const ok = missing === 0 && extra === 0;
+      const r = ok ? [{l:"Correct! You spotted exactly the right lines.", ok:true}] : [
+        {l: missing ? `${missing} line${missing > 1 ? "s" : ""} still to find` : "You found every faulty line", ok: !missing},
+        {l: extra ? `${extra} selected line${extra > 1 ? "s are" : " is"} actually fine` : "No correct lines selected by mistake", ok: !extra}];
+      return {ok, results:r};
+    }
+    case "text": {
+      const text = String(ans || "").replace(/\r/g, "");
+      const results = [];
+      let api;
+      if (ex.lang === "yaml"){
+        const p = parseYaml(text);
+        results.push({l:"Valid YAML structure: spaces only, aligned siblings, key: value pairs", ok: p.errors.length === 0 && p.entries.length > 0, sub:p.errors});
+        api = makeApi(p.entries, text.replace(/^\s*#.*$/gm, ""));
+      } else {
+        const lines = text.split("\n").map(l => l.trim()).filter(l => l && !l.startsWith("#"));
+        api = {src:text, lines};
+      }
+      for (const c of ex.checks){
+        let ok = false;
+        try { ok = !!c.t(api); } catch (e) { ok = false; }
+        results.push({l:c.l, ok});
+      }
+      return {ok: results.every(r => r.ok), results};
+    }
+  }
+  return {ok:false, results:[]};
+}
+
+// The model answer for each exercise, in the same shape grade() expects.
+function modelAnswer(ex){
+  switch (ex.type){
+    case "mc": return ex.answer;
+    case "multi": case "lines": return ex.answer.slice();
+    case "order": return ex.items.map((_, i) => i);
+    case "match": return ex.rows.map(r => r[1]);
+    case "fill": return ex.blanks.map(b => b[0]);
+    case "text": return ex.solution;
+  }
+}
+
+// Deterministic shuffle so the starting order is stable between visits.
+function scramble(id, n){
+  let seed = 0; for (const ch of id) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296;
+  const a = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  if (a.every((v, i) => v === i)) a.reverse();
+  return a;
+}
+
+const ALL_EX = MODULES.flatMap(m => m.exercises);
+
+/* ===================================================================
+   HIGHLIGHTER (tiny, dependency-free)
+   =================================================================== */
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function commentAt(v){
+  let q = null;
+  for (let i = 0; i < v.length; i++){
+    const ch = v[i];
+    if (q){ if (ch === q) q = null; continue; }
+    if ((ch === "'" || ch === '"') && (i === 0 || /\s/.test(v[i - 1]))){ q = ch; continue; }
+    if (ch === "#" && (i === 0 || /\s/.test(v[i - 1]))) return i;
+  }
+  return -1;
+}
+function hlValue(v){
+  const ci = commentAt(v);
+  const body = ci >= 0 ? v.slice(0, ci) : v, comment = ci >= 0 ? v.slice(ci) : "";
+  const t = body.trim();
+  let out;
+  if (/^(['"]).*\1$/.test(t)) out = `<span class="ts">${esc(body)}</span>`;
+  else if (/^[|>][-+]?\d*$/.test(t)) out = `<span class="tk">${esc(body)}</span>`;
+  else if (/^(true|false|none|null|~|-?\d+(\.\d+)?)$/i.test(t)) out = `<span class="tn">${esc(body)}</span>`;
+  else out = esc(body);
+  return out + (comment ? `<span class="tc">${esc(comment)}</span>` : "");
+}
+function hlYaml(code){
+  let blockCol = -1;
+  return code.split("\n").map(line => {
+    const ind = line.match(/^ */)[0].length;
+    if (blockCol >= 0){
+      if (!line.trim() || ind > blockCol) return esc(line);
+      blockCol = -1;
+    }
+    const [, sp, dash, rest] = line.match(/^(\s*)((?:-\s+|-$)*)(.*)$/);
+    if (rest.startsWith("#")) return esc(sp + dash) + `<span class="tc">${esc(rest)}</span>`;
+    let out = esc(sp) + (dash ? `<span class="tdash">${esc(dash)}</span>` : "");
+    const km = /^['"]/.test(rest) ? null : rest.match(/^(.+?)(\s*:)(\s+.*)?$/);
+    if (km){
+      out += `<span class="tk">${esc(km[1])}</span>${esc(km[2])}`;
+      if (km[3]){
+        const lead = km[3].match(/^\s*/)[0], val = km[3].slice(lead.length);
+        out += lead + hlValue(val);
+        if (/^[|>][-+]?\d*\s*(#.*)?$/.test(val.trim())) blockCol = ind;
+      }
+    } else out += hlValue(rest);
+    return out;
+  }).join("\n");
+}
+function hlSh(code){
+  return code.split("\n").map(line => {
+    const m = line.match(/^(\s*)(#.*)$/);
+    if (m) return esc(m[1]) + `<span class="tc">${esc(m[2])}</span>`;
+    const ci = line.search(/\s#\s/);
+    const body = ci >= 0 ? line.slice(0, ci) : line, c = ci >= 0 ? line.slice(ci) : "";
+    return esc(body).replace(/^(\s*)((?:sudo\s+)?[\w.\/\\-]+)/, '$1<span class="tk">$2</span>').replace(/(\s)(--?[\w-]+)/g, '$1<span class="tt">$2</span>')
+      + (c ? `<span class="tc">${esc(c)}</span>` : "");
+  }).join("\n");
+}
+function hlText(code){
+  // highlight AB#123, #123, @mentions and trailing comments in plain text blocks
+  return code.split("\n").map(line => {
+    const ci = line.search(/\s{2,}(?=\S)/);
+    const body = ci >= 0 ? line.slice(0, ci) : line, rest = ci >= 0 ? line.slice(ci) : "";
+    const h = s => esc(s).replace(/(AB#\d+|(?:^|(?<=\s))[!#]\d+|@[\w-]+(?:\/[\w-]+)?)/g, '<span class="td">$1</span>');
+    return h(body) + (rest ? `<span class="tc">${esc(rest)}</span>` : "");
+  }).join("\n");
+}
+function highlight(code, lang){
+  if (lang === "text") return hlText(code);
+  if (lang === "sh") return hlSh(code);
+  return hlYaml(code);
+}
+function codeBlock(code, lang){
+  return `<div class="codewrap"><pre><code>${highlight(code, lang || "yaml")}</code></pre><button class="copy">Copy</button></div>`;
+}
+
+/* ===================================================================
+   UI
+   =================================================================== */
+const KIND = {mc:"Single choice", multi:"Select all that apply", order:"Put in order", match:"Match", fill:"Fill in the blanks", lines:"Spot the error", text:"Write it"};
+
+function startApp(){
+  const store = {
+    get(k, d){ try { const v = localStorage.getItem("agentsLab:" + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v){ try { localStorage.setItem("agentsLab:" + k, JSON.stringify(v)); } catch {} }
+  };
+  let done = store.get("done", []).filter(id => ALL_EX.some(e => e.id === id));
+  let current = Math.min(store.get("current", 0), MODULES.length - 1);
+  const $ = s => document.querySelector(s);
+  const state = {};   // exercise id → current answer
+  const modDone = m => m.exercises.filter(e => done.includes(e.id)).length;
+
+  function renderNav(){
+    let html = "", lastGroup = "";
+    MODULES.forEach((m, i) => {
+      if (m.group !== lastGroup){ html += `<div class="group">${m.group}</div>`; lastGroup = m.group; }
+      const n = modDone(m), all = n === m.exercises.length;
+      const cls = [i === current ? "active" : "", all ? "done" : ""].join(" ");
+      html += `<button class="${cls}" data-i="${i}"><span class="num">${all ? "✓" : i + 1}</span>${m.title}<span class="cnt">${n}/${m.exercises.length}</span></button>`;
+    });
+    $("#nav").innerHTML = html;
+    $("#bar").style.width = (done.length / ALL_EX.length * 100) + "%";
+    $("#ptext").textContent = `${done.length} of ${ALL_EX.length} exercises completed`;
+  }
+
+  /* ---------- per-type input rendering ---------- */
+  function bodyHtml(ex){
+    const sid = ex.id;
+    switch (ex.type){
+      case "mc": case "multi":
+        return `<div class="opts">${ex.options.map((o, i) =>
+          `<label class="opt" data-i="${i}"><input type="${ex.type === "mc" ? "radio" : "checkbox"}" name="${sid}" value="${i}"><span>${o}</span></label>`).join("")}</div>`;
+      case "order":
+        return `<ol class="order" id="ol-${sid}"></ol>`;
+      case "match":
+        return `<table class="match">${ex.rows.map((r, i) =>
+          `<tr data-i="${i}"><td>${r[0]}</td><td><select aria-label="Answer ${i + 1}"><option value="">— choose —</option>${ex.choices.map(c => `<option>${esc(c)}</option>`).join("")}</select></td></tr>`).join("")}</table>`;
+      case "fill": {
+        let k = 0;
+        const html = ex.tpl.replace(/\[\[(\d+)\]\]/g, (_, n) => {
+          const w = Math.max(6, ...ex.blanks[+n].map(b => b.length)) + 2;
+          k++; return `<input data-b="${n}" size="${w}" aria-label="Blank ${+n + 1}" autocomplete="off" spellcheck="false">`;
+        });
+        return `<div class="fill${ex.mono ? " mono" : ""}">${html}</div>`;
+      }
+      case "lines":
+        return `<div class="lines${ex.prose ? " prose" : ""}">${ex.code.map((l, i) =>
+          `<div class="ln" data-i="${i}" role="button" tabindex="0"><span class="no">${i + 1}</span><span>${esc(l) || " "}</span></div>`).join("")}</div>`;
+      case "text":
+        return `<textarea class="${ex.lang === "yaml" ? "" : "short"}" spellcheck="false" aria-label="Answer editor"></textarea>
+          <p class="edhelp">${ex.lang === "yaml" ? "Tab / Shift+Tab indent by 2 spaces · Enter keeps the indentation · " : ""}Ctrl+Enter checks your answer · your draft is saved automatically</p>`;
+    }
+  }
+
+  function solutionHtml(ex){
+    switch (ex.type){
+      case "mc": return `<p><b>Answer:</b> ${ex.options[ex.answer]}</p>`;
+      case "multi": return `<ul class="tips">${ex.answer.map(i => `<li>${ex.options[i]}</li>`).join("")}</ul>`;
+      case "order": return `<ol class="tips">${ex.items.map(t => `<li>${t}</li>`).join("")}</ol>`;
+      case "match": return `<div class="tablewrap"><table class="ref">${ex.rows.map(r => `<tr><td>${r[0]}</td><td><b>${esc(r[1])}</b></td></tr>`).join("")}</table></div>`;
+      case "fill": {
+        const html = ex.tpl.replace(/\[\[(\d+)\]\]/g, (_, n) => `<b><u>${esc(ex.blanks[+n][0])}</u></b>`);
+        return `<div class="fill${ex.mono ? " mono" : ""}">${html}</div>`;
+      }
+      case "lines": return `<p>Faulty line${ex.answer.length > 1 ? "s" : ""}: ${ex.answer.map(i => `<b>${i + 1}</b>`).join(", ")}</p>`;
+      case "text": return codeBlock(ex.solution, ex.lang === "yaml" ? "yaml" : ex.lang === "sh" ? "sh" : "text");
+    }
+  }
+
+  function wireExercise(ex, root){
+    const id = ex.id;
+    const q = s => root.querySelector(s);
+    const draftKey = "draft:" + id;
+
+    if (ex.type === "mc"){
+      root.querySelectorAll("input").forEach(inp => inp.onchange = () => { state[id] = +inp.value; clearMarks(); });
+      state[id] = null;
+    }
+    if (ex.type === "multi"){
+      state[id] = [];
+      root.querySelectorAll("input").forEach(inp => inp.onchange = () => {
+        state[id] = [...root.querySelectorAll("input:checked")].map(x => +x.value); clearMarks();
+      });
+    }
+    if (ex.type === "order"){
+      state[id] = scramble(id, ex.items.length);
+      const ol = q(".order");
+      let dragFrom = null;
+      const draw = (marks) => {
+        ol.innerHTML = state[id].map((it, pos) =>
+          `<li draggable="true" data-pos="${pos}" class="${marks ? (marks[pos] ? "right" : "wrong") : ""}"><span class="pos">${pos + 1}</span><span class="txt">${ex.items[it]}</span>
+            <span class="mv"><button class="btn small" data-mv="-1" ${pos === 0 ? "disabled" : ""} aria-label="Move up">↑</button><button class="btn small" data-mv="1" ${pos === ex.items.length - 1 ? "disabled" : ""} aria-label="Move down">↓</button></span></li>`).join("");
+      };
+      const move = (from, to) => {
+        const a = state[id]; const [x] = a.splice(from, 1); a.splice(to, 0, x); draw();
+      };
+      ol.onclick = e => {
+        const b = e.target.closest("button[data-mv]"); if (!b) return;
+        const pos = +b.closest("li").dataset.pos, to = pos + +b.dataset.mv;
+        if (to >= 0 && to < ex.items.length) move(pos, to);
+      };
+      ol.addEventListener("dragstart", e => { const li = e.target.closest("li"); if (li){ dragFrom = +li.dataset.pos; e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", ""); } catch {} } });
+      ol.addEventListener("dragover", e => { if (dragFrom !== null) e.preventDefault(); });
+      ol.addEventListener("drop", e => { e.preventDefault(); const li = e.target.closest("li"); if (li && dragFrom !== null) move(dragFrom, +li.dataset.pos); dragFrom = null; });
+      ol.addEventListener("dragend", () => { dragFrom = null; });
+      root._draw = draw;
+      draw();
+    }
+    if (ex.type === "match"){
+      state[id] = ex.rows.map(() => "");
+      root.querySelectorAll("select").forEach((s, i) => s.onchange = () => { state[id][i] = s.value; s.closest("tr").className = ""; });
+    }
+    if (ex.type === "fill"){
+      state[id] = ex.blanks.map(() => "");
+      root.querySelectorAll(".fill input").forEach(inp => {
+        inp.oninput = () => { state[id][+inp.dataset.b] = inp.value; inp.className = ""; };
+        inp.onkeydown = e => { if (e.key === "Enter"){ e.preventDefault(); check(); } };
+      });
+    }
+    if (ex.type === "lines"){
+      state[id] = [];
+      const toggle = el => {
+        const i = +el.dataset.i, a = state[id];
+        if (a.includes(i)) a.splice(a.indexOf(i), 1); else a.push(i);
+        root.querySelectorAll(".ln").forEach(l => l.className = "ln" + (a.includes(+l.dataset.i) ? " sel" : ""));
+      };
+      root.querySelectorAll(".ln").forEach(el => {
+        el.onclick = () => toggle(el);
+        el.onkeydown = e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(el); } };
+      });
+    }
+    if (ex.type === "text"){
+      const ed = q("textarea");
+      const saved = store.get(draftKey, null);
+      ed.value = saved !== null ? saved : ex.starter;
+      state[id] = ed.value;
+      const save = () => { state[id] = ed.value; store.set(draftKey, ed.value); };
+      const insert = t => {
+        ed.focus();
+        if (!document.execCommand || !document.execCommand("insertText", false, t)){
+          const s = ed.selectionStart, en = ed.selectionEnd;
+          ed.value = ed.value.slice(0, s) + t + ed.value.slice(en);
+          ed.selectionStart = ed.selectionEnd = s + t.length;
+          save();
+        }
+      };
+      ed.addEventListener("input", save);
+      ed.addEventListener("keydown", e => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); check(); return; }
+        if (ex.lang !== "yaml") return;
+        if (e.key === "Tab" && !e.shiftKey){ e.preventDefault(); insert("  "); return; }
+        if (e.key === "Tab" && e.shiftKey){
+          e.preventDefault();
+          const s = ed.selectionStart, ls = ed.value.lastIndexOf("\n", s - 1) + 1;
+          const n = ed.value.slice(ls, ls + 2).match(/^ {0,2}/)[0].length;
+          if (n){ ed.value = ed.value.slice(0, ls) + ed.value.slice(ls + n); ed.selectionStart = ed.selectionEnd = Math.max(ls, s - n); save(); }
+          return;
+        }
+        if (e.key === "Enter" && !e.shiftKey && !e.altKey){
+          const before = ed.value.slice(0, ed.selectionStart);
+          const line = before.slice(before.lastIndexOf("\n") + 1);
+          let ind = line.match(/^ */)[0].length;
+          const dm = line.slice(ind).match(/^(-\s+)+/);
+          if (dm && /:/.test(line)) ind += dm[0].length;
+          if (!/^\s*#/.test(line) && /(:|:\s*[|>][-+]?)\s*$/.test(line)) ind += 2;
+          e.preventDefault();
+          insert("\n" + " ".repeat(ind));
+        }
+      });
+    }
+
+    function clearMarks(){
+      root.querySelectorAll(".opt").forEach(o => o.classList.remove("right", "wrong"));
+    }
+
+    function check(){
+      const g = grade(ex, state[id]);
+      // per-item coloring
+      if (ex.type === "mc" || ex.type === "multi"){
+        clearMarks();
+        const sel = ex.type === "mc" ? (state[id] === null ? [] : [state[id]]) : state[id];
+        sel.forEach(i => root.querySelector(`.opt[data-i="${i}"]`).classList.add(
+          (ex.type === "mc" ? i === ex.answer : ex.answer.includes(i)) ? "right" : "wrong"));
+      }
+      if (ex.type === "order") root._draw(g.marks);
+      if (ex.type === "match") root.querySelectorAll(".match tr").forEach((tr, i) => tr.className = g.marks[i] ? "right" : "wrong");
+      if (ex.type === "fill") root.querySelectorAll(".fill input").forEach(inp => inp.className = g.marks[+inp.dataset.b] ? "right" : "wrong");
+      if (ex.type === "lines") root.querySelectorAll(".ln").forEach(l => {
+        const i = +l.dataset.i, sel = state[id].includes(i);
+        l.className = "ln" + (sel ? (ex.answer.includes(i) ? " right" : " wrong") : "");
+      });
+      q(".results").innerHTML = g.results.map(r =>
+        `<li class="${r.ok ? "pass" : "fail"}">${r.ok ? "✔" : "✘"} ${esc(r.l)}${(r.sub || []).map(s => `<span class="sub">↳ ${esc(s)}</span>`).join("")}</li>`).join("") +
+        (ex.type === "text" ? `<li class="${g.ok ? "pass" : "fail"}"><b>${g.results.filter(r => r.ok).length}/${g.results.length} checks passed${g.ok ? ". Nice work! 🎉" : ""}</b></li>` : "");
+      if (g.ok){
+        q(".why").style.display = "block";
+        if (!done.includes(id)){ done.push(id); store.set("done", done); renderNav(); }
+        root.classList.add("solved");
+      }
+    }
+
+    q(".checkBtn").onclick = check;
+    q(".hintBtn").onclick = () => { const h = q(".hint"); h.style.display = h.style.display === "block" ? "none" : "block"; };
+    q(".solBtn").onclick = e => {
+      const s = q(".solution"), show = s.style.display !== "block";
+      s.style.display = show ? "block" : "none";
+      q(".why").style.display = show || root.classList.contains("solved") ? "block" : "none";
+      e.target.textContent = show ? "Hide solution" : "Show solution";
+    };
+    q(".resetBtn").onclick = () => {
+      if (ex.type === "text") store.set(draftKey, null);
+      const fresh = document.createElement("section");
+      root.replaceWith(fresh);
+      buildExercise(ex, fresh);
+    };
+  }
+
+  function buildExercise(ex, el){
+    const n = ALL_EX.indexOf(ex) + 1;
+    el.className = "exercise" + (done.includes(ex.id) ? " solved" : "");
+    el.id = "ex-" + ex.id;
+    el.innerHTML = `
+      <h3>🧪 ${n}. ${ex.title} <span class="kind">${KIND[ex.type]}</span> <span class="badge">Completed</span></h3>
+      <div>${ex.q}</div>
+      ${bodyHtml(ex)}
+      <div class="btns">
+        <button class="btn primary checkBtn">Check my answer</button>
+        <button class="btn hintBtn">Hint</button>
+        <button class="btn solBtn">Show solution</button>
+        <button class="btn resetBtn">Reset</button>
+      </div>
+      <div class="hint">💡 ${ex.hint}</div>
+      <ul class="results"></ul>
+      <div class="solution"><p class="solhead">Model answer</p>${solutionHtml(ex)}</div>
+      <div class="why"><b>Why:</b> ${ex.why}</div>`;
+    wireExercise(ex, el);
+  }
+
+  function renderModule(){
+    const m = MODULES[current];
+    const sections = m.sections.map(s => `
+        <h3>${s.h}</h3>
+        ${s.p ? `<p>${s.p}</p>` : ""}
+        ${s.file ? `<div class="file">${s.file}</div>` : ""}
+        ${s.code ? codeBlock(s.code, s.lang) : ""}
+        ${s.after || ""}`).join("");
+
+    $("#content").innerHTML = `
+      <span class="tag">Module ${current + 1} of ${MODULES.length} · ${m.tag}</span>
+      <h2>${m.title}</h2>
+      <p class="lead">${m.intro}</p>
+      ${sections}
+      ${m.tip ? `<div class="note exam">🎯 <b>AZ-400 exam tip:</b> ${m.tip}</div>` : ""}
+      <h3 style="margin-top:36px">Exercises (${m.exercises.length})</h3>
+      <div id="exlist"></div>
+      <div class="navfoot">
+        <button class="btn" id="prevBtn" ${current === 0 ? "disabled" : ""}>← Previous</button>
+        <button class="btn" id="nextBtn" ${current === MODULES.length - 1 ? "disabled" : ""}>Next →</button>
+      </div>`;
+    const list = $("#exlist");
+    m.exercises.forEach(ex => { const el = document.createElement("section"); list.appendChild(el); buildExercise(ex, el); });
+    $("#prevBtn").onclick = () => go(current - 1);
+    $("#nextBtn").onclick = () => go(current + 1);
+    renderNav();
+    window.scrollTo(0, 0);
+  }
+
+  function go(i){
+    if (i < 0 || i >= MODULES.length) return;
+    current = i; store.set("current", i);
+    $("#side").classList.remove("open");
+    renderModule();
+  }
+
+  $("#nav").addEventListener("click", e => { const b = e.target.closest("button"); if (b) go(+b.dataset.i); });
+  $("#menuBtn").onclick = () => $("#side").classList.toggle("open");
+  document.addEventListener("click", e => {
+    if (!e.target.classList.contains("copy")) return;
+    const text = e.target.previousElementSibling.innerText;
+    navigator.clipboard?.writeText(text).then(() => { e.target.textContent = "Copied!"; setTimeout(() => e.target.textContent = "Copy", 1200); });
+  });
+  $("#themeBtn").onclick = () => {
+    const root = document.documentElement;
+    const dark = root.dataset.theme ? root.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+    root.dataset.theme = dark ? "light" : "dark"; store.set("theme", root.dataset.theme);
+  };
+  $("#resetAllBtn").onclick = () => {
+    if (!confirm("Reset all progress and saved drafts for this lab?")) return;
+    done = []; store.set("done", done);
+    ALL_EX.filter(e => e.type === "text").forEach(e => store.set("draft:" + e.id, null));
+    renderModule();
+  };
+  const t = store.get("theme", null); if (t) document.documentElement.dataset.theme = t;
+
+  renderModule();
+}
+
+if (typeof document !== "undefined" && document.getElementById("content")) startApp();
+</script>
+</body>
+</html>
